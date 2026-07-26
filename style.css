@@ -1,0 +1,272 @@
+/* ========================================================================== 
+   ANAIS FREY — GLOBAL ANIMATIONS CSS
+   GSAP + ScrollTrigger + SplitType
+========================================================================== */
+
+:root {
+    --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
+    --motion-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+    --motion-duration: 0.7s;
+  }
+  
+  /* ========================================================================== 
+     GLOBAL
+  ========================================================================== */
+  
+  html.is-menu-open,
+  body.is-menu-open {
+    overflow: hidden !important;
+  }
+  
+  body {
+    overflow-x: hidden;
+  }
+  
+  /* Cache uniquement les animations LOAD avant l'initialisation de GSAP. */
+  html:not(.is-gsap-ready) [animation^="load"] {
+    visibility: hidden;
+  }
+  
+  html.is-gsap-ready [animation^="load"] {
+    visibility: visible;
+  }
+  
+  /* Webflow Designer */
+  .w-editor [animation] {
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: none !important;
+    filter: none !important;
+  }
+  
+  /* ========================================================================== 
+     NAVBAR — OPEN / CLOSE SUR TOUS LES BREAKPOINTS
+  ========================================================================== */
+  
+  .menu--trigger {
+    position: relative;
+    z-index: 1002;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  .icon--menu-wrapper {
+    position: relative;
+  }
+  
+  .icon--open,
+  .icon--close {
+    display: block;
+    width: 100%;
+    height: auto;
+    color: currentColor;
+    will-change: transform, opacity;
+  }
+  
+  .icon--close {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+  
+  .nav--open {
+    display: none;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    will-change: opacity, visibility;
+  }
+  
+  .nav--open.is-open {
+    visibility: visible;
+    pointer-events: auto;
+  }
+  
+  .container--nav-open,
+  .nav--menu,
+  .nav--open-right,
+  .nav--open-top,
+  .parent--socials,
+  .is--navopen-bottom {
+    will-change: transform, opacity, filter;
+  }
+  
+  @media (hover: hover) and (pointer: fine) {
+    .nav--menu > .inline-block {
+      transition: opacity 0.35s ease;
+    }
+  
+    .nav--menu:hover > .inline-block {
+      opacity: 0.4;
+    }
+  
+    .nav--menu > .inline-block:hover {
+      opacity: 1;
+    }
+  }
+  
+  /* ========================================================================== 
+     BUTTONS
+  ========================================================================== */
+  
+  .btn {
+    position: relative;
+    cursor: pointer;
+    transform: translateZ(0);
+    will-change: transform;
+  }
+  
+  .btn--bg {
+    transform-origin: center;
+    will-change: transform, opacity;
+  }
+  
+  .btn--arrow-wrapper {
+    transform-origin: left center;
+    will-change: transform;
+  }
+  
+  .btn--arrow {
+    display: block;
+    overflow: visible;
+    transform-origin: left center;
+    will-change: transform;
+  }
+  
+  .text--overflow {
+    overflow: hidden;
+  }
+  
+  /* La structure contient déjà deux copies du texte. */
+  .btn-animate-chars__text {
+    position: relative;
+    display: block;
+    will-change: transform;
+  }
+  
+  .btn-animate-chars__text > div {
+    display: block;
+    white-space: nowrap;
+  }
+  
+  .btn-animate-chars__text > div:nth-child(2) {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+  }
+  
+  .inline-block:focus-visible,
+  .menu--trigger:focus-visible,
+  .btn:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 0.25rem;
+  }
+  
+  /* Grand CTA */
+  .home--subhero-cta_inside,
+  .home--subhero-cta_inside .arrow--60,
+  .home--subhero-cta_inside h2,
+  .home--subhero-cta_inside .image--absolute100 {
+    will-change: transform;
+  }
+  
+  /* ========================================================================== 
+     LOAD + FADE ANIMATIONS
+  
+     LOAD :
+     animation="load"
+     animation="load-up"
+     animation="load-down"
+     animation="load-left"
+     animation="load-right"
+     animation="load-scale"
+     animation="load-stagger"
+     animation="load-split"
+  
+     SCROLL :
+     animation="fade"
+     animation="fade-up"
+     animation="fade-down"
+     animation="fade-left"
+     animation="fade-right"
+     animation="fade-scale"
+     animation="fade-stagger"
+     animation="fade-split"
+  ========================================================================== */
+  
+  [animation="load"],
+  [animation="load-up"],
+  [animation="load-down"],
+  [animation="load-left"],
+  [animation="load-right"],
+  [animation="load-scale"],
+  [animation="load-stagger"] > *,
+  [animation="fade"],
+  [animation="fade-up"],
+  [animation="fade-down"],
+  [animation="fade-left"],
+  [animation="fade-right"],
+  [animation="fade-scale"],
+  [animation="fade-stagger"] > *,
+  [animation="load-split"],
+  [animation="fade-split"] {
+    will-change: transform, opacity, filter;
+  }
+  
+  /* SplitType crée .line à l'intérieur du texte. */
+  [animation="load-split"],
+  [animation="fade-split"] {
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+  
+  .split-line-mask {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.08em;
+    margin-bottom: -0.08em;
+  }
+  
+  .split-line {
+    display: block;
+    will-change: transform, opacity, filter;
+  }
+  
+  /* Évite que SplitType perturbe les paragraphes internes. */
+  .split-line p,
+  .split-line h1,
+  .split-line h2,
+  .split-line h3,
+  .split-line h4,
+  .split-line h5,
+  .split-line h6 {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+  
+  /* ========================================================================== 
+     REDUCED MOTION
+  ========================================================================== */
+  
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      scroll-behavior: auto !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  
+    [animation],
+    [animation] > *,
+    .split-line {
+      opacity: 1 !important;
+      visibility: visible !important;
+      transform: none !important;
+      filter: none !important;
+    }
+  }
