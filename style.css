@@ -4,327 +4,411 @@
 ========================================================================== */
 
 :root {
-    --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
-    --motion-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
-    --motion-duration: 0.7s;
+  --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --motion-duration: 0.7s;
+}
+
+/* ========================================================================== 
+   GLOBAL
+========================================================================== */
+
+html.is-menu-open,
+body.is-menu-open {
+  overflow: hidden !important;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+/* Cache uniquement les animations LOAD avant l'initialisation de GSAP. */
+html:not(.is-gsap-ready) [animation^="load"] {
+  visibility: hidden;
+}
+
+html.is-gsap-ready [animation^="load"] {
+  visibility: visible;
+}
+
+/* Webflow Designer */
+.w-editor [animation] {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: none !important;
+  filter: none !important;
+}
+
+/* ========================================================================== 
+   NAVBAR — OPEN / CLOSE SUR TOUS LES BREAKPOINTS
+========================================================================== */
+
+.menu--trigger {
+  position: relative;
+  z-index: 1002;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.icon--menu-wrapper {
+  position: relative;
+}
+
+.icon--open,
+.icon--close {
+  display: block;
+  width: 100%;
+  height: auto;
+  color: currentColor;
+  will-change: transform, opacity;
+}
+
+.icon--close {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.nav--open {
+  display: none;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  will-change: opacity, visibility;
+}
+
+.nav--open.is-open {
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.container--nav-open,
+.nav--menu,
+.nav--open-right,
+.nav--open-top,
+.parent--socials,
+.is--navopen-bottom {
+  will-change: transform, opacity, filter;
+}
+
+/* Le dropdown ne doit pas être coupé par les conteneurs de la navbar. */
+.nav--open,
+.container--nav-open,
+.nav--menu {
+  overflow: visible;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .nav--menu > .inline-block {
+    transition: opacity 0.35s ease;
   }
-  
-  /* ========================================================================== 
-     GLOBAL
-  ========================================================================== */
-  
-  html.is-menu-open,
-  body.is-menu-open {
-    overflow: hidden !important;
+
+  .nav--menu:hover > .inline-block {
+    opacity: 0.4;
   }
-  
-  body {
-    overflow-x: hidden;
+
+  .nav--menu > .inline-block:hover,
+  .nav--menu > .inline-block.is-drop-open {
+    opacity: 1;
   }
-  
-  /* Cache uniquement les animations LOAD avant l'initialisation de GSAP. */
-  html:not(.is-gsap-ready) [animation^="load"] {
-    visibility: hidden;
+}
+
+/* ========================================================================== 
+   NAVBAR — DROPDOWN .drop--menu.navbar--drop
+========================================================================== */
+
+.nav--menu > .inline-block.navbar--drop {
+  position: relative;
+  z-index: 2;
+}
+
+.nav--menu > .inline-block.navbar--drop.is-drop-open {
+  z-index: 30;
+}
+
+.nav--menu
+  > .inline-block.navbar--drop
+  > .drop--menu.navbar--drop {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 20;
+
+  display: block;
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+
+  transform: translateY(1rem);
+  transform-origin: top left;
+
+  will-change: height, transform, opacity, visibility;
+}
+
+.nav--menu
+  > .inline-block.navbar--drop.is-drop-open
+  > .drop--menu.navbar--drop {
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.drop--menu.navbar--drop .drop--link,
+.drop--menu.navbar--drop .divider {
+  will-change: transform, opacity, filter;
+}
+
+.drop--menu.navbar--drop .drop--link {
+  display: block;
+}
+
+.nav--menu > .inline-block.navbar--drop > .btn:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 0.25rem;
+}
+
+@media screen and (max-width: 991px) {
+  .nav--menu > .inline-block.navbar--drop {
+    width: 100%;
   }
-  
-  html.is-gsap-ready [animation^="load"] {
-    visibility: visible;
+
+  .nav--menu
+    > .inline-block.navbar--drop
+    > .drop--menu.navbar--drop {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: 100%;
+    height: 0;
+    overflow: hidden;
+    transform: none;
   }
-  
-  /* Webflow Designer */
-  .w-editor [animation] {
+}
+
+/* ========================================================================== 
+   BUTTONS — ANCIEN HOVER CONSERVÉ
+========================================================================== */
+
+.btn {
+  position: relative;
+  cursor: pointer;
+  transform: translateZ(0);
+}
+
+.btn--bg {
+  transform-origin: center;
+}
+
+/*
+  Le masque reste uniquement autour des deux copies du texte.
+  Le bouton lui-même conserve son comportement Webflow d’origine.
+*/
+.text--overflow {
+  overflow: hidden;
+}
+
+.btn-animate-chars__text {
+  position: relative;
+  display: block;
+  will-change: transform;
+}
+
+.btn-animate-chars__text > div {
+  display: block;
+  white-space: nowrap;
+}
+
+.btn-animate-chars__text > div:nth-child(2) {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+}
+
+.btn--arrow-wrapper,
+.btn--arrow {
+  will-change: transform;
+}
+
+.inline-block:focus-visible,
+.menu--trigger:focus-visible,
+.btn:focus-visible,
+.social--link:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 0.25rem;
+}
+
+/* Grand CTA */
+.home--subhero-cta_inside,
+.home--subhero-cta_inside .arrow--60,
+.home--subhero-cta_inside h2,
+.home--subhero-cta_inside .image--absolute100 {
+  will-change: transform;
+}
+
+/* ========================================================================== 
+   SOCIAL LINKS — LOGO ABSOLU, AUCUN REFLOW
+
+   Structure attendue :
+   <a class="social--link">
+     <img class="social--logo">
+     <div>Youtube</div>
+   </a>
+
+   Le logo reste hors du flux. Aucune largeur ou hauteur ne lui est imposée.
+   Aucun changement de hauteur ou de largeur du lien pendant le hover.
+========================================================================== */
+
+.parent--socials,
+.footer--bottom,
+.is--footer-bottom {
+  overflow: visible;
+}
+
+.social--link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  cursor: pointer;
+  isolation: isolate;
+  vertical-align: middle;
+}
+
+.social--link > div {
+  position: relative;
+  z-index: 2;
+  display: block;
+  margin: 0;
+  padding: 0;
+  white-space: nowrap;
+  opacity: 1;
+  visibility: visible;
+  will-change: transform;
+}
+
+.social--link > .social--logo {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 0.35rem);
+  z-index: 3;
+  display: block;
+  margin: 0;
+  padding: 0;
+  max-width: none;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.social--link,
+.social--link > div,
+.social--link > .social--logo {
+  transition: none !important;
+}
+
+/* ========================================================================== 
+   LOAD + FADE ANIMATIONS
+
+   LOAD :
+   animation="load"
+   animation="load-up"
+   animation="load-down"
+   animation="load-left"
+   animation="load-right"
+   animation="load-scale"
+   animation="load-stagger"
+   animation="load-split"
+
+   SCROLL :
+   animation="fade"
+   animation="fade-up"
+   animation="fade-down"
+   animation="fade-left"
+   animation="fade-right"
+   animation="fade-scale"
+   animation="fade-stagger"
+   animation="fade-split"
+========================================================================== */
+
+[animation="load"],
+[animation="load-up"],
+[animation="load-down"],
+[animation="load-left"],
+[animation="load-right"],
+[animation="load-scale"],
+[animation="load-stagger"] > *,
+[animation="fade"],
+[animation="fade-up"],
+[animation="fade-down"],
+[animation="fade-left"],
+[animation="fade-right"],
+[animation="fade-scale"],
+[animation="fade-stagger"] > *,
+[animation="load-split"],
+[animation="fade-split"] {
+  will-change: transform, opacity, filter;
+}
+
+/* SplitType crée .line à l'intérieur du texte. */
+[animation="load-split"],
+[animation="fade-split"] {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.split-line-mask {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.08em;
+  margin-bottom: -0.08em;
+}
+
+.split-line {
+  display: block;
+  will-change: transform, opacity, filter;
+}
+
+/* Évite que SplitType perturbe les paragraphes internes. */
+.split-line p,
+.split-line h1,
+.split-line h2,
+.split-line h3,
+.split-line h4,
+.split-line h5,
+.split-line h6 {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+/* ========================================================================== 
+   REDUCED MOTION
+========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  [animation],
+  [animation] > *,
+  .split-line,
+  .nav--menu
+    > .inline-block.navbar--drop
+    > .drop--menu.navbar--drop,
+  .drop--menu.navbar--drop .drop--link,
+  .drop--menu.navbar--drop .divider {
     opacity: 1 !important;
     visibility: visible !important;
     transform: none !important;
     filter: none !important;
   }
-  
-  /* ========================================================================== 
-     NAVBAR — OPEN / CLOSE SUR TOUS LES BREAKPOINTS
-  ========================================================================== */
-  
-  .menu--trigger {
-    position: relative;
-    z-index: 1002;
-    cursor: pointer;
-    user-select: none;
-    -webkit-tap-highlight-color: transparent;
-  }
-  
-  .icon--menu-wrapper {
-    position: relative;
-  }
-  
-  .icon--open,
-  .icon--close {
-    display: block;
-    width: 100%;
-    height: auto;
-    color: currentColor;
-    will-change: transform, opacity;
-  }
-  
-  .icon--close {
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    pointer-events: none;
-  }
-  
-  .nav--open {
-    display: none;
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    will-change: opacity, visibility;
-  }
-  
-  .nav--open.is-open {
-    visibility: visible;
-    pointer-events: auto;
-  }
-  
-  .container--nav-open,
-  .nav--menu,
-  .nav--open-right,
-  .nav--open-top,
-  .parent--socials,
-  .is--navopen-bottom {
-    will-change: transform, opacity, filter;
-  }
-  
-  @media (hover: hover) and (pointer: fine) {
-    .nav--menu > .inline-block {
-      transition: opacity 0.35s ease;
-    }
-  
-    .nav--menu:hover > .inline-block {
-      opacity: 0.4;
-    }
-  
-    .nav--menu > .inline-block:hover {
-      opacity: 1;
-    }
-  }
-  
-  /* ========================================================================== 
-     BUTTONS — ANCIEN HOVER CONSERVÉ
-  ========================================================================== */
-  
-  .btn {
-    position: relative;
-    cursor: pointer;
-    transform: translateZ(0);
-  }
-  
-  .btn--bg {
-    transform-origin: center;
-  }
-  
-  /*
-    Le masque reste uniquement autour des deux copies du texte.
-    Le bouton lui-même conserve son comportement Webflow d’origine.
-  */
-  .text--overflow {
-    overflow: hidden;
-  }
-  
-  .btn-animate-chars__text {
-    position: relative;
-    display: block;
-    will-change: transform;
-  }
-  
-  .btn-animate-chars__text > div {
-    display: block;
-    white-space: nowrap;
-  }
-  
-  .btn-animate-chars__text > div:nth-child(2) {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 100%;
-  }
-  
-  .btn--arrow-wrapper,
-  .btn--arrow {
-    will-change: transform;
-  }
-  
-  .inline-block:focus-visible,
-  .menu--trigger:focus-visible,
-  .btn:focus-visible,
-  .social--link:focus-visible {
-    outline: 2px solid currentColor;
-    outline-offset: 0.25rem;
-  }
-  
-  /* Grand CTA */
-  .home--subhero-cta_inside,
-  .home--subhero-cta_inside .arrow--60,
-  .home--subhero-cta_inside h2,
-  .home--subhero-cta_inside .image--absolute100 {
-    will-change: transform;
-  }
-  
-  /* ========================================================================== 
-     SOCIAL LINKS — LOGO ABSOLU, AUCUN REFLOW
-  
-     Structure attendue :
-     <a class="social--link">
-       <img class="social--logo">
-       <div>Youtube</div>
-     </a>
-  
-     Le logo reste hors du flux. Aucune largeur ou hauteur ne lui est imposée.
-     Aucun changement de hauteur ou de largeur du lien pendant le hover.
-  ========================================================================== */
-  
-  .parent--socials,
-  .footer--bottom,
-  .is--footer-bottom {
-    overflow: visible;
-  }
-  
-  .social--link {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    overflow: visible;
-    cursor: pointer;
-    isolation: isolate;
-    vertical-align: middle;
-  }
-  
-  .social--link > div {
-    position: relative;
-    z-index: 2;
-    display: block;
-    margin: 0;
-    padding: 0;
-    white-space: nowrap;
-    opacity: 1;
-    visibility: visible;
-    will-change: transform;
-  }
-  
-  .social--link > .social--logo {
-    position: absolute;
-    left: 50%;
-    bottom: calc(100% + 0.35rem);
-    z-index: 3;
-    display: block;
-    margin: 0;
-    padding: 0;
-    max-width: none;
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    will-change: transform, opacity;
-  }
-  
-  .social--link,
-  .social--link > div,
-  .social--link > .social--logo {
-    transition: none !important;
-  }
-  
-  /* ========================================================================== 
-     LOAD + FADE ANIMATIONS
-  
-     LOAD :
-     animation="load"
-     animation="load-up"
-     animation="load-down"
-     animation="load-left"
-     animation="load-right"
-     animation="load-scale"
-     animation="load-stagger"
-     animation="load-split"
-  
-     SCROLL :
-     animation="fade"
-     animation="fade-up"
-     animation="fade-down"
-     animation="fade-left"
-     animation="fade-right"
-     animation="fade-scale"
-     animation="fade-stagger"
-     animation="fade-split"
-  ========================================================================== */
-  
-  [animation="load"],
-  [animation="load-up"],
-  [animation="load-down"],
-  [animation="load-left"],
-  [animation="load-right"],
-  [animation="load-scale"],
-  [animation="load-stagger"] > *,
-  [animation="fade"],
-  [animation="fade-up"],
-  [animation="fade-down"],
-  [animation="fade-left"],
-  [animation="fade-right"],
-  [animation="fade-scale"],
-  [animation="fade-stagger"] > *,
-  [animation="load-split"],
-  [animation="fade-split"] {
-    will-change: transform, opacity, filter;
-  }
-  
-  /* SplitType crée .line à l'intérieur du texte. */
-  [animation="load-split"],
-  [animation="fade-split"] {
-    opacity: 1 !important;
-    visibility: visible !important;
-  }
-  
-  .split-line-mask {
-    display: block;
-    overflow: hidden;
-    padding-bottom: 0.08em;
-    margin-bottom: -0.08em;
-  }
-  
-  .split-line {
-    display: block;
-    will-change: transform, opacity, filter;
-  }
-  
-  /* Évite que SplitType perturbe les paragraphes internes. */
-  .split-line p,
-  .split-line h1,
-  .split-line h2,
-  .split-line h3,
-  .split-line h4,
-  .split-line h5,
-  .split-line h6 {
-    margin-top: 0;
-    margin-bottom: 0;
-  }
-  
-  /* ========================================================================== 
-     REDUCED MOTION
-  ========================================================================== */
-  
-  @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-      scroll-behavior: auto !important;
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-    }
-  
-    [animation],
-    [animation] > *,
-    .split-line {
-      opacity: 1 !important;
-      visibility: visible !important;
-      transform: none !important;
-      filter: none !important;
-    }
-  }
+}
