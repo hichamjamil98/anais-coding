@@ -26,6 +26,7 @@ window.addEventListener("DOMContentLoaded", () => {
   
     initNavbar(reduceMotion);
     initButtons(reduceMotion);
+    initSocialLinks(reduceMotion);
     initSplitElements();
     initLoadAnimations(reduceMotion);
     initScrollAnimations(reduceMotion);
@@ -399,17 +400,12 @@ window.addEventListener("DOMContentLoaded", () => {
   }
   
   /* ========================================================================== 
-     2. BUTTON HOVERS
+     2. BUTTON HOVERS — ANCIEN COMPORTEMENT POUR TOUS
   
-     BOUTONS AVEC FLÈCHE :
-     - allongement horizontal du SVG uniquement ;
-     - léger déplacement horizontal du texte vers la droite ;
-     - aucun déplacement du bouton ;
-     - aucun zoom du fond ;
-     - aucun remplacement vertical du texte.
-  
-     BOUTONS SANS FLÈCHE :
-     - conservation du léger défilement vertical du double texte.
+     - le double texte monte verticalement ;
+     - la flèche conserve son ancien léger déplacement ;
+     - aucun calcul spécial de width ;
+     - aucun traitement différent selon la visibilité de la flèche.
   ========================================================================== */
   
   function initButtons(reduceMotion) {
@@ -425,25 +421,8 @@ window.addEventListener("DOMContentLoaded", () => {
       if (button.dataset.hoverReady === "true") return;
       button.dataset.hoverReady = "true";
   
-      const textOverflow = button.querySelector(".text--overflow");
       const textTrack = button.querySelector(".btn-animate-chars__text");
       const arrowWrapper = button.querySelector(".btn--arrow-wrapper");
-  
-      const arrowIsVisible = Boolean(
-        arrowWrapper &&
-        getComputedStyle(arrowWrapper).display !== "none" &&
-        getComputedStyle(arrowWrapper).visibility !== "hidden" &&
-        arrowWrapper.getBoundingClientRect().width > 0
-      );
-  
-      /*
-        La classe ne s'applique qu'aux variantes dont la flèche est visible.
-        Le bouton et son lien parent ne coupent donc plus l'animation.
-      */
-      if (arrowIsVisible) {
-        button.classList.add("has-visible-arrow");
-        button.closest(".inline-block")?.classList.add("has-visible-arrow");
-      }
   
       const timeline = gsap.timeline({
         paused: true,
@@ -454,7 +433,6 @@ window.addEventListener("DOMContentLoaded", () => {
         }
       });
   
-      /* Ancien hover : remplacement vertical des deux copies du texte. */
       if (textTrack && textTrack.children.length > 1) {
         timeline.to(
           textTrack,
@@ -465,46 +443,11 @@ window.addEventListener("DOMContentLoaded", () => {
         );
       }
   
-      /*
-        Variante avec flèche visible :
-        - on augmente la vraie propriété width du wrapper ;
-        - aucun scale n'est appliqué au SVG ;
-        - le bloc texte se décale légèrement vers la droite ;
-        - l'ancien slide vertical du texte reste conservé.
-      */
-      if (arrowIsVisible) {
-        const baseArrowWidth = arrowWrapper.getBoundingClientRect().width;
-        const extraArrowWidth = Math.max(8, parseFloat(
-          getComputedStyle(document.documentElement).fontSize
-        ) * 0.65);
-  
-        gsap.set(arrowWrapper, {
-          width: baseArrowWidth,
-          maxWidth: "none"
-        });
-  
+      if (arrowWrapper) {
         timeline.to(
           arrowWrapper,
           {
-            width: baseArrowWidth + extraArrowWidth
-          },
-          0
-        );
-  
-        if (textOverflow) {
-          timeline.to(
-            textOverflow,
-            {
-              x: "0.25rem"
-            },
-            0
-          );
-        }
-      } else if (textTrack && textTrack.children.length <= 1) {
-        timeline.to(
-          textTrack,
-          {
-            x: "0.18rem"
+            x: "0.35rem"
           },
           0
         );
@@ -519,7 +462,6 @@ window.addEventListener("DOMContentLoaded", () => {
       button.addEventListener("focusout", reverse);
     });
   
-    /* Grand CTA : vraie augmentation de width, sans scale. */
     gsap.utils.toArray(".home--subhero-cta_inside").forEach((cta) => {
       if (cta.dataset.hoverReady === "true") return;
       cta.dataset.hoverReady = "true";
@@ -528,8 +470,6 @@ window.addEventListener("DOMContentLoaded", () => {
       const title = cta.querySelector("h2");
   
       if (!arrow && !title) return;
-  
-      cta.style.overflow = "visible";
   
       const timeline = gsap.timeline({
         paused: true,
@@ -540,36 +480,12 @@ window.addEventListener("DOMContentLoaded", () => {
         }
       });
   
-      if (arrow && arrow.getBoundingClientRect().width > 0) {
-        const baseWidth = arrow.getBoundingClientRect().width;
-        const extraWidth = Math.max(10, parseFloat(
-          getComputedStyle(document.documentElement).fontSize
-        ) * 0.75);
-  
-        gsap.set(arrow, {
-          width: baseWidth,
-          maxWidth: "none",
-          flex: "none",
-          transform: "none"
-        });
-  
-        timeline.to(
-          arrow,
-          {
-            width: baseWidth + extraWidth
-          },
-          0
-        );
+      if (arrow) {
+        timeline.to(arrow, { x: "0.4rem" }, 0);
       }
   
       if (title) {
-        timeline.to(
-          title,
-          {
-            x: "0.25rem"
-          },
-          0
-        );
+        timeline.to(title, { x: "0.25rem" }, 0);
       }
   
       cta.addEventListener("mouseenter", () => timeline.play());
@@ -580,7 +496,87 @@ window.addEventListener("DOMContentLoaded", () => {
   }
   
   /* ========================================================================== 
-     3. SPLIT TEXT SETUP
+     3. SOCIAL LINKS — TEXTE VERS IMAGE
+  
+     Structure utilisée :
+     .social--link > img.social--logo + div
+  
+     État initial : seul le texte est visible.
+     Hover : le texte descend et l'image arrive depuis le haut.
+  ========================================================================== */
+  
+  function initSocialLinks(reduceMotion) {
+    const links = gsap.utils.toArray(".social--link");
+    if (!links.length) return;
+  
+    const canHover = window.matchMedia(
+      "(hover: hover) and (pointer: fine)"
+    ).matches;
+  
+    links.forEach((link) => {
+      if (link.dataset.socialHoverReady === "true") return;
+  
+      const logo = link.querySelector(":scope > .social--logo");
+      const text = link.querySelector(":scope > div");
+  
+      if (!logo || !text) return;
+  
+      link.dataset.socialHoverReady = "true";
+  
+      gsap.set(text, {
+        yPercent: 0,
+        autoAlpha: 1
+      });
+  
+      gsap.set(logo, {
+        yPercent: -110,
+        autoAlpha: 0,
+        pointerEvents: "none"
+      });
+  
+      if (reduceMotion || !canHover) return;
+  
+      const timeline = gsap.timeline({
+        paused: true,
+        defaults: {
+          overwrite: "auto"
+        }
+      });
+  
+      timeline
+        .to(
+          text,
+          {
+            yPercent: 110,
+            autoAlpha: 0,
+            duration: 0.48,
+            ease: "power3.inOut"
+          },
+          0
+        )
+        .to(
+          logo,
+          {
+            yPercent: 0,
+            autoAlpha: 1,
+            duration: 0.68,
+            ease: "power4.out"
+          },
+          0.06
+        );
+  
+      const play = () => timeline.play();
+      const reverse = () => timeline.reverse();
+  
+      link.addEventListener("mouseenter", play);
+      link.addEventListener("mouseleave", reverse);
+      link.addEventListener("focusin", play);
+      link.addEventListener("focusout", reverse);
+    });
+  }
+  
+  /* ========================================================================== 
+     4. SPLIT TEXT SETUP
   ========================================================================== */
   
   function initSplitElements() {

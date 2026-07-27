@@ -108,7 +108,7 @@
   }
   
   /* ========================================================================== 
-     BUTTONS
+     BUTTONS — ANCIEN HOVER CONSERVÉ
   ========================================================================== */
   
   .btn {
@@ -122,39 +122,11 @@
   }
   
   /*
-    Le JS ajoute .has-visible-arrow uniquement lorsque .btn--arrow-wrapper
-    est réellement visible (display différent de none).
-  
-    Dans ce cas, le bouton complet reste en overflow visible afin que
-    l'allongement réel de la flèche et le déplacement du texte ne soient
-    jamais coupés.
-  */
-  .btn.has-visible-arrow,
-  .inline-block.has-visible-arrow {
-    overflow: visible !important;
-  }
-  
-  .btn--arrow-wrapper {
-    flex: none;
-    max-width: none;
-    will-change: width;
-  }
-  
-  .btn--arrow-wrapper .btn--arrow {
-    display: block;
-    width: 100%;
-    height: auto;
-    overflow: visible;
-    transform: none !important;
-  }
-  
-  /*
-    Le masque du double texte reste actif : il permet de conserver
-    l'ancien hover vertical sans afficher simultanément les deux textes.
+    Le masque reste uniquement autour des deux copies du texte.
+    Le bouton lui-même conserve son comportement Webflow d’origine.
   */
   .text--overflow {
     overflow: hidden;
-    will-change: transform;
   }
   
   .btn-animate-chars__text {
@@ -175,9 +147,15 @@
     width: 100%;
   }
   
+  .btn--arrow-wrapper,
+  .btn--arrow {
+    will-change: transform;
+  }
+  
   .inline-block:focus-visible,
   .menu--trigger:focus-visible,
-  .btn:focus-visible {
+  .btn:focus-visible,
+  .social--link:focus-visible {
     outline: 2px solid currentColor;
     outline-offset: 0.25rem;
   }
@@ -188,6 +166,55 @@
   .home--subhero-cta_inside h2,
   .home--subhero-cta_inside .image--absolute100 {
     will-change: transform;
+  }
+  
+  /* ========================================================================== 
+     SOCIAL LINKS — STRUCTURE RÉELLE
+  
+     .social--link
+       img.social--logo
+       div (texte)
+  
+     État initial : texte visible, image cachée au-dessus.
+     Hover : texte descend, image arrive depuis le haut.
+  ========================================================================== */
+  
+  .social--link {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    cursor: pointer;
+    isolation: isolate;
+  }
+  
+  .social--link > div {
+    position: relative;
+    z-index: 2;
+    display: block;
+    will-change: transform, opacity;
+  }
+  
+  .social--link > .social--logo {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    opacity: 0;
+    transform: translateY(-110%);
+    pointer-events: none;
+    will-change: transform, opacity;
+  }
+  
+  /* GSAP pilote ces transformations : pas de transition CSS concurrente. */
+  .social--link > div,
+  .social--link > .social--logo {
+    transition: none;
   }
   
   /* ========================================================================== 
