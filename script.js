@@ -405,6 +405,7 @@ function initNavbar(reduceMotion) {
 
    Desktop : ouverture au hover et au focus.
    Tablette/mobile : ouverture au clic.
+   La position et les dimensions restent entièrement gérées dans Webflow.
 ========================================================================== */
 
 function initNavbarDropdowns(reduceMotion) {
@@ -441,6 +442,10 @@ function initNavbarDropdowns(reduceMotion) {
     trigger.setAttribute("aria-expanded", "false");
     menu.setAttribute("aria-hidden", "true");
 
+    /*
+      On modifie uniquement la visibilité.
+      Aucun x, y, height, width ou transform n'est appliqué au menu.
+    */
     gsap.set(menu, {
       autoAlpha: 0,
       pointerEvents: "none"
@@ -493,8 +498,7 @@ function initNavbarDropdowns(reduceMotion) {
       if (reduceMotion) {
         gsap.set(menu, {
           autoAlpha: 1,
-          pointerEvents: "auto",
-          height: "auto"
+          pointerEvents: "auto"
         });
 
         gsap.set(links, {
@@ -507,47 +511,25 @@ function initNavbarDropdowns(reduceMotion) {
         return;
       }
 
-      const isDesktop = desktopMedia.matches;
-
       timeline = gsap.timeline({
         defaults: {
           overwrite: "auto"
         }
       });
 
-      if (isDesktop) {
-        timeline.fromTo(
-          menu,
-          {
-            y: "1rem",
-            autoAlpha: 0
-          },
-          {
-            y: 0,
-            autoAlpha: 1,
-            pointerEvents: "auto",
-            duration: 0.45,
-            ease: "power3.out"
-          },
-          0
-        );
-      } else {
-        timeline.fromTo(
-          menu,
-          {
-            height: 0,
-            autoAlpha: 0
-          },
-          {
-            height: "auto",
-            autoAlpha: 1,
-            pointerEvents: "auto",
-            duration: 0.55,
-            ease: "expo.out"
-          },
-          0
-        );
-      }
+      timeline.fromTo(
+        menu,
+        {
+          autoAlpha: 0
+        },
+        {
+          autoAlpha: 1,
+          pointerEvents: "auto",
+          duration: 0.4,
+          ease: "power2.out"
+        },
+        0
+      );
 
       timeline.fromTo(
         links,
@@ -595,8 +577,7 @@ function initNavbarDropdowns(reduceMotion) {
 
         gsap.set(menu, {
           autoAlpha: 0,
-          pointerEvents: "none",
-          clearProps: "height,y"
+          pointerEvents: "none"
         });
 
         gsap.set(links, {
@@ -609,8 +590,6 @@ function initNavbarDropdowns(reduceMotion) {
         return;
       }
 
-      const isDesktop = desktopMedia.matches;
-
       timeline = gsap.timeline({
         defaults: {
           overwrite: "auto"
@@ -619,8 +598,7 @@ function initNavbarDropdowns(reduceMotion) {
           dropdown.classList.remove("is-drop-open");
 
           gsap.set(menu, {
-            pointerEvents: "none",
-            clearProps: "height,y"
+            pointerEvents: "none"
           });
         }
       });
@@ -651,31 +629,16 @@ function initNavbarDropdowns(reduceMotion) {
         );
       }
 
-      if (isDesktop) {
-        timeline.to(
-          menu,
-          {
-            y: "0.6rem",
-            autoAlpha: 0,
-            pointerEvents: "none",
-            duration: 0.3,
-            ease: "power2.in"
-          },
-          0.05
-        );
-      } else {
-        timeline.to(
-          menu,
-          {
-            height: 0,
-            autoAlpha: 0,
-            pointerEvents: "none",
-            duration: 0.4,
-            ease: "power3.inOut"
-          },
-          0.05
-        );
-      }
+      timeline.to(
+        menu,
+        {
+          autoAlpha: 0,
+          pointerEvents: "none",
+          duration: 0.3,
+          ease: "power2.in"
+        },
+        0.05
+      );
     }
 
     function delayedClose() {
@@ -764,7 +727,8 @@ function initNavbarDropdowns(reduceMotion) {
       closeDropdown(true);
 
       gsap.set(menu, {
-        clearProps: "height,y,transform"
+        autoAlpha: 0,
+        pointerEvents: "none"
       });
     });
   });

@@ -117,10 +117,10 @@ html.is-gsap-ready [animation^="load"] {
 
 /* ========================================================================== 
    NAVBAR — DROPDOWN .drop--menu.navbar--drop
+   Position et dimensions entièrement définies dans Webflow
 ========================================================================== */
 
 .nav--menu > .inline-block.navbar--drop {
-  position: relative;
   z-index: 2;
 }
 
@@ -128,23 +128,18 @@ html.is-gsap-ready [animation^="load"] {
   z-index: 30;
 }
 
+/*
+  Important : aucune position, dimension ou transformation n'est imposée ici.
+  Le dropdown conserve exactement les réglages définis dans Webflow.
+*/
 .nav--menu
   > .inline-block.navbar--drop
   > .drop--menu.navbar--drop {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  z-index: 20;
-
   display: block;
   visibility: hidden;
   opacity: 0;
   pointer-events: none;
-
-  transform: translateY(1rem);
-  transform-origin: top left;
-
-  will-change: height, transform, opacity, visibility;
+  will-change: opacity, visibility;
 }
 
 .nav--menu
@@ -166,24 +161,6 @@ html.is-gsap-ready [animation^="load"] {
 .nav--menu > .inline-block.navbar--drop > .btn:focus-visible {
   outline: 2px solid currentColor;
   outline-offset: 0.25rem;
-}
-
-@media screen and (max-width: 991px) {
-  .nav--menu > .inline-block.navbar--drop {
-    width: 100%;
-  }
-
-  .nav--menu
-    > .inline-block.navbar--drop
-    > .drop--menu.navbar--drop {
-    position: relative;
-    top: auto;
-    left: auto;
-    width: 100%;
-    height: 0;
-    overflow: hidden;
-    transform: none;
-  }
 }
 
 /* ========================================================================== 
