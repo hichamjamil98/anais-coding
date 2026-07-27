@@ -169,16 +169,15 @@
   }
   
   /* ========================================================================== 
-     SOCIAL LINKS — TEXTE + LOGO VISIBLES AU HOVER
+     SOCIAL LINKS — DIMENSIONS WEBFLOW CONSERVÉES
   
      Structure :
      .social--link
        img.social--logo
        div (texte)
   
-     État initial : texte centré, logo caché au-dessus.
-     Hover : le logo descend depuis le haut et le texte se décale légèrement
-     vers le bas. Les deux restent visibles simultanément.
+     Aucun width/height/object-fit n'est imposé au logo.
+     Les dimensions définies dans Webflow restent donc intactes.
   ========================================================================== */
   
   .social--link {
@@ -191,35 +190,28 @@
     isolation: isolate;
   }
   
-  .social--link > div {
-    position: relative;
-    z-index: 2;
-    display: block;
-    will-change: transform, opacity;
-  }
-  
-  .social--link > .social--logo {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    z-index: 1;
-    display: block;
-    width: 2.4rem;
-    height: 2.4rem;
-    max-width: none;
-    object-fit: cover;
-    border-radius: 0.45rem;
-    opacity: 0;
-    visibility: hidden;
-    transform: translate(-50%, -130%);
-    pointer-events: none;
-    will-change: transform, opacity;
-  }
-  
-  /* GSAP pilote ces transformations. */
   .social--link > div,
   .social--link > .social--logo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: block;
+    margin: 0;
     transition: none;
+    will-change: transform, opacity, visibility;
+  }
+  
+  .social--link > div {
+    z-index: 2;
+    white-space: nowrap;
+  }
+  
+  .social--link > .social--logo {
+    z-index: 1;
+    max-width: none;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
   }
   
   /* ========================================================================== 

@@ -496,14 +496,10 @@ window.addEventListener("DOMContentLoaded", () => {
   }
   
   /* ========================================================================== 
-     3. SOCIAL LINKS — TEXTE + LOGO VISIBLES AU HOVER
+     3. SOCIAL LINKS — LOGO + TEXTE VISIBLES AU HOVER
   
-     Structure utilisée :
-     .social--link > img.social--logo + div
-  
-     État initial : seul le texte est visible et centré.
-     Hover : le logo arrive depuis le haut, le texte descend légèrement,
-     et les deux restent visibles simultanément.
+     Les dimensions du logo sont lues directement depuis Webflow.
+     Le script ne modifie jamais width, height, object-fit ou border-radius.
   ========================================================================== */
   
   function initSocialLinks(reduceMotion) {
@@ -524,59 +520,119 @@ window.addEventListener("DOMContentLoaded", () => {
   
       link.dataset.socialHoverReady = "true";
   
-      gsap.set(text, {
-        y: 0,
-        autoAlpha: 1
-      });
+      let timeline = null;
+      let resizeTimer = null;
   
-      gsap.set(logo, {
-        xPercent: -50,
-        yPercent: -130,
-        autoAlpha: 0,
-        pointerEvents: "none"
-      });
-  
-      if (reduceMotion || !canHover) return;
-  
-      const logoHeight = logo.getBoundingClientRect().height || 38;
-      const textShift = Math.max(8, logoHeight * 0.72);
-  
-      const timeline = gsap.timeline({
-        paused: true,
-        defaults: {
-          overwrite: "auto"
+      const createTimeline = () => {
+        if (timeline) {
+          timeline.kill();
+          timeline = null;
         }
-      });
   
-      timeline
-        .to(
-          text,
-          {
-            y: textShift,
-            autoAlpha: 1,
-            duration: 0.62,
-            ease: "power4.out"
-          },
-          0
-        )
-        .to(
-          logo,
-          {
-            yPercent: 18,
-            autoAlpha: 1,
-            duration: 0.7,
-            ease: "power4.out"
-          },
-          0.03
+        /* Nettoie uniquement les propriétés animées par GSAP. */
+        gsap.set([logo, text], {
+          clearProps: "transform,opacity,visibility"
+        });
+  
+        /* Base commune centrée, sans toucher aux dimensions du logo. */
+        gsap.set(text, {
+          xPercent: -50,
+          yPercent: -50,
+          x: 0,
+          y: 0,
+          autoAlpha: 1
+        });
+  
+        gsap.set(logo, {
+          xPercent: -50,
+          yPercent: -50,
+          x: 0,
+          autoAlpha: 0,
+          pointerEvents: "none"
+        });
+  
+        const linkHeight = link.getBoundingClientRect().height;
+        const logoHeight = logo.getBoundingClientRect().height;
+        const textHeight = text.getBoundingClientRect().height;
+        const gap = 8;
+  
+        /*
+         * Position finale : le groupe logo + texte reste centré dans le lien.
+         * Logo au-dessus, texte en dessous, tous deux visibles.
+         */
+        const logoFinalY = -((textHeight + gap) / 2);
+        const textFinalY = (logoHeight + gap) / 2;
+  
+        /* Le logo commence complètement au-dessus de la zone masquée. */
+        const logoStartY = -(
+          linkHeight / 2 +
+          logoHeight / 2 +
+          gap
         );
   
-      const play = () => timeline.play();
-      const reverse = () => timeline.reverse();
+        gsap.set(logo, {
+          y: logoStartY,
+          autoAlpha: 0
+        });
   
-      link.addEventListener("mouseenter", play);
-      link.addEventListener("mouseleave", reverse);
+        if (reduceMotion || !canHover) return;
+  
+        timeline = gsap.timeline({
+          paused: true,
+          defaults: {
+            overwrite: "auto"
+          }
+        });
+  
+        timeline
+          .to(
+            text,
+            {
+              y: textFinalY,
+              autoAlpha: 1,
+              duration: 0.65,
+              ease: "power4.out"
+            },
+            0
+          )
+          .to(
+            logo,
+            {
+              y: logoFinalY,
+              autoAlpha: 1,
+              duration: 0.72,
+              ease: "power4.out"
+            },
+            0.02
+          );
+      };
+  
+      const play = () => {
+        if (timeline) timeline.play();
+      };
+  
+      const reverse = () => {
+        if (timeline) timeline.reverse();
+      };
+  
+      if (logo.complete) {
+        createTimeline();
+      } else {
+        logo.addEventListener("load", createTimeline, { once: true });
+      }
+  
+      if (canHover && !reduceMotion) {
+        link.addEventListener("mouseenter", play);
+        link.addEventListener("mouseleave", reverse);
+      }
+  
       link.addEventListener("focusin", play);
       link.addEventListener("focusout", reverse);
+  
+      window.addEventListener("resize", () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(createTimeline, 150);
+      });
     });
   }
   
