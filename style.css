@@ -122,28 +122,41 @@
   }
   
   /*
-    Boutons avec flèche :
-    - le SVG s'allonge uniquement sur l'axe horizontal ;
-    - le texte se déplace légèrement vers la droite ;
-    - aucun zoom du bouton ou du fond.
+    Le JS ajoute .has-visible-arrow uniquement lorsque .btn--arrow-wrapper
+    est réellement visible (display différent de none).
+  
+    Dans ce cas, le bouton complet reste en overflow visible afin que
+    l'allongement réel de la flèche et le déplacement du texte ne soient
+    jamais coupés.
   */
+  .btn.has-visible-arrow,
+  .inline-block.has-visible-arrow {
+    overflow: visible !important;
+  }
+  
   .btn--arrow-wrapper {
-    overflow: visible;
+    flex: none;
+    max-width: none;
+    will-change: width;
   }
   
-  .btn--arrow {
+  .btn--arrow-wrapper .btn--arrow {
     display: block;
+    width: 100%;
+    height: auto;
     overflow: visible;
-    transform-origin: left center;
-    will-change: transform;
+    transform: none !important;
   }
   
+  /*
+    Le masque du double texte reste actif : il permet de conserver
+    l'ancien hover vertical sans afficher simultanément les deux textes.
+  */
   .text--overflow {
     overflow: hidden;
     will-change: transform;
   }
   
-  /* La structure contient déjà deux copies du texte. */
   .btn-animate-chars__text {
     position: relative;
     display: block;

@@ -427,8 +427,23 @@ window.addEventListener("DOMContentLoaded", () => {
   
       const textOverflow = button.querySelector(".text--overflow");
       const textTrack = button.querySelector(".btn-animate-chars__text");
-      const arrow = button.querySelector(".btn--arrow");
-      const hasArrow = Boolean(arrow);
+      const arrowWrapper = button.querySelector(".btn--arrow-wrapper");
+  
+      const arrowIsVisible = Boolean(
+        arrowWrapper &&
+        getComputedStyle(arrowWrapper).display !== "none" &&
+        getComputedStyle(arrowWrapper).visibility !== "hidden" &&
+        arrowWrapper.getBoundingClientRect().width > 0
+      );
+  
+      /*
+        La classe ne s'applique qu'aux variantes dont la flèche est visible.
+        Le bouton et son lien parent ne coupent donc plus l'animation.
+      */
+      if (arrowIsVisible) {
+        button.classList.add("has-visible-arrow");
+        button.closest(".inline-block")?.classList.add("has-visible-arrow");
+      }
   
       const timeline = gsap.timeline({
         paused: true,
@@ -439,40 +454,8 @@ window.addEventListener("DOMContentLoaded", () => {
         }
       });
   
-      if (hasArrow) {
-        /* Le SVG s'allonge sans déplacer son wrapper. */
-        gsap.set(arrow, {
-          transformOrigin: "left center"
-        });
-  
-        timeline.to(
-          arrow,
-          {
-            scaleX: 1.14
-          },
-          0
-        );
-  
-        /* Le bloc texte complet se décale légèrement vers la droite. */
-        if (textOverflow) {
-          timeline.to(
-            textOverflow,
-            {
-              x: "0.3rem"
-            },
-            0
-          );
-        } else if (textTrack) {
-          timeline.to(
-            textTrack,
-            {
-              x: "0.3rem"
-            },
-            0
-          );
-        }
-      } else if (textTrack && textTrack.children.length > 1) {
-        /* Hover discret pour les boutons sans flèche. */
+      /* Ancien hover : remplacement vertical des deux copies du texte. */
+      if (textTrack && textTrack.children.length > 1) {
         timeline.to(
           textTrack,
           {
@@ -480,7 +463,44 @@ window.addEventListener("DOMContentLoaded", () => {
           },
           0
         );
-      } else if (textTrack) {
+      }
+  
+      /*
+        Variante avec flèche visible :
+        - on augmente la vraie propriété width du wrapper ;
+        - aucun scale n'est appliqué au SVG ;
+        - le bloc texte se décale légèrement vers la droite ;
+        - l'ancien slide vertical du texte reste conservé.
+      */
+      if (arrowIsVisible) {
+        const baseArrowWidth = arrowWrapper.getBoundingClientRect().width;
+        const extraArrowWidth = Math.max(8, parseFloat(
+          getComputedStyle(document.documentElement).fontSize
+        ) * 0.65);
+  
+        gsap.set(arrowWrapper, {
+          width: baseArrowWidth,
+          maxWidth: "none"
+        });
+  
+        timeline.to(
+          arrowWrapper,
+          {
+            width: baseArrowWidth + extraArrowWidth
+          },
+          0
+        );
+  
+        if (textOverflow) {
+          timeline.to(
+            textOverflow,
+            {
+              x: "0.25rem"
+            },
+            0
+          );
+        }
+      } else if (textTrack && textTrack.children.length <= 1) {
         timeline.to(
           textTrack,
           {
@@ -499,7 +519,7 @@ window.addEventListener("DOMContentLoaded", () => {
       button.addEventListener("focusout", reverse);
     });
   
-    /* Grand CTA : même mouvement minimal que les boutons avec flèche. */
+    /* Grand CTA : vraie augmentation de width, sans scale. */
     gsap.utils.toArray(".home--subhero-cta_inside").forEach((cta) => {
       if (cta.dataset.hoverReady === "true") return;
       cta.dataset.hoverReady = "true";
@@ -509,11 +529,7 @@ window.addEventListener("DOMContentLoaded", () => {
   
       if (!arrow && !title) return;
   
-      if (arrow) {
-        gsap.set(arrow, {
-          transformOrigin: "left center"
-        });
-      }
+      cta.style.overflow = "visible";
   
       const timeline = gsap.timeline({
         paused: true,
@@ -524,11 +540,23 @@ window.addEventListener("DOMContentLoaded", () => {
         }
       });
   
-      if (arrow) {
+      if (arrow && arrow.getBoundingClientRect().width > 0) {
+        const baseWidth = arrow.getBoundingClientRect().width;
+        const extraWidth = Math.max(10, parseFloat(
+          getComputedStyle(document.documentElement).fontSize
+        ) * 0.75);
+  
+        gsap.set(arrow, {
+          width: baseWidth,
+          maxWidth: "none",
+          flex: "none",
+          transform: "none"
+        });
+  
         timeline.to(
           arrow,
           {
-            scaleX: 1.12
+            width: baseWidth + extraWidth
           },
           0
         );
@@ -538,7 +566,7 @@ window.addEventListener("DOMContentLoaded", () => {
         timeline.to(
           title,
           {
-            x: "0.3rem"
+            x: "0.25rem"
           },
           0
         );
