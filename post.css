@@ -2,24 +2,39 @@
    POST CARD HOVER
 ========================================================================== */
 
-.post--item {
+.post--card {
+    position: relative;
     cursor: pointer;
   }
   
-  /* Empêche l’image zoomée de dépasser */
-  .post--image-wrapper {
+  /* Image */
+  .news--image-wrapper {
     position: relative;
     overflow: hidden;
   }
   
-  /* Image principale uniquement */
-  .post--image-wrapper > img {
+  .news--image-wrapper > img {
     display: block;
-    transform-origin: center center;
+    transform: scale(1);
+    transform-origin: center;
+    transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
     will-change: transform;
   }
   
-  /* Lien contenant "Voir le post" */
-  .post--text > a.inline-block {
+  /* Lien "Voir le post" */
+  .news--text > a.inline-block {
+    position: relative;
+    z-index: 2;
+    transform: translateY(0);
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
     will-change: transform;
+  }
+  
+  /* Hover sur toute la carte */
+  .post--card:hover .news--image-wrapper > img {
+    transform: scale(1.08);
+  }
+  
+  .post--card:hover .news--text > a.inline-block {
+    transform: translateY(-0.4rem);
   }
