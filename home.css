@@ -8,84 +8,84 @@
 ========================================================================== */
 
 .home--subhero-cta {
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .home--subhero-cta > .image--absolute100 {
-    will-change: transform;
-    transform-origin: center center;
-  }
-  
-  .home--subhero-cta_inside {
-    position: relative;
-    z-index: 2;
-  }
-  
-  .home--subhero-cta_inside .arrow--60 {
-    display: block;
-    flex: none;
-    max-width: none;
-    transform-origin: left center;
-    will-change: width;
-  }
-  
-  /* Prevent CSS transitions from competing with GSAP */
+  position: relative;
+  overflow: hidden;
+}
+
+.home--subhero-cta > .image--absolute100 {
+  will-change: transform;
+  transform-origin: center center;
+}
+
+.home--subhero-cta_inside {
+  position: relative;
+  z-index: 2;
+}
+
+.home--subhero-cta_inside .arrow--60 {
+  display: block;
+  flex: none;
+  max-width: none;
+  transform-origin: left center;
+  will-change: width;
+}
+
+/* Prevent CSS transitions from competing with GSAP */
+.home--subhero-cta > .image--absolute100,
+.home--subhero-cta_inside .arrow--60,
+.home--subhero-cta_inside h2,
+.home--subhero-cta_inside p {
+  transition: none !important;
+}
+
+/* ==========================================================================
+   2. SKILL CARDS
+========================================================================== */
+
+.skill--card {
+  position: relative;
+}
+
+.skill--image-wrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+.skill--image-wrapper > .image--absolute100 {
+  will-change: transform;
+  transform-origin: center center;
+}
+
+.btn--arrow-wrapper.is--card {
+  pointer-events: none;
+  will-change: transform, opacity, visibility;
+}
+
+.skill--card .heading-style-64.is--skill,
+.skill--card h3 {
+  will-change: transform;
+}
+
+/* Prevent CSS transitions from competing with GSAP */
+.skill--card .btn--arrow-wrapper.is--card,
+.skill--card .heading-style-64.is--skill,
+.skill--card h3,
+.skill--card .skill--image-wrapper > .image--absolute100 {
+  transition: none !important;
+}
+
+/* ==========================================================================
+   3. ACCESSIBILITY / REDUCED MOTION
+========================================================================== */
+
+@media (prefers-reduced-motion: reduce) {
   .home--subhero-cta > .image--absolute100,
   .home--subhero-cta_inside .arrow--60,
-  .home--subhero-cta_inside h2,
-  .home--subhero-cta_inside p {
-    transition: none !important;
-  }
-  
-  /* ==========================================================================
-     2. SKILL CARDS
-  ========================================================================== */
-  
-  .skill--card {
-    position: relative;
-  }
-  
-  .skill--image-wrapper {
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .skill--image-wrapper > .image--absolute100 {
-    will-change: transform;
-    transform-origin: center center;
-  }
-  
-  .btn--arrow-wrapper.is--card {
-    pointer-events: none;
-    will-change: transform, opacity, visibility;
-  }
-  
-  .skill--card .heading-style-64.is--skill,
-  .skill--card h3 {
-    will-change: transform;
-  }
-  
-  /* Prevent CSS transitions from competing with GSAP */
   .skill--card .btn--arrow-wrapper.is--card,
   .skill--card .heading-style-64.is--skill,
   .skill--card h3,
   .skill--card .skill--image-wrapper > .image--absolute100 {
+    transform: none !important;
     transition: none !important;
   }
-  
-  /* ==========================================================================
-     3. ACCESSIBILITY / REDUCED MOTION
-  ========================================================================== */
-  
-  @media (prefers-reduced-motion: reduce) {
-    .home--subhero-cta > .image--absolute100,
-    .home--subhero-cta_inside .arrow--60,
-    .skill--card .btn--arrow-wrapper.is--card,
-    .skill--card .heading-style-64.is--skill,
-    .skill--card h3,
-    .skill--card .skill--image-wrapper > .image--absolute100 {
-      transform: none !important;
-      transition: none !important;
-    }
-  }
+}
