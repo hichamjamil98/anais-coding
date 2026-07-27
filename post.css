@@ -1,32 +1,25 @@
 /* ==========================================================================
-   POSTS HOVER
+   POST CARD HOVER
 ========================================================================== */
 
 .post--item {
     cursor: pointer;
   }
   
+  /* Empêche l’image zoomée de dépasser */
   .post--image-wrapper {
+    position: relative;
     overflow: hidden;
   }
   
-  .post--image-wrapper img {
+  /* Image principale uniquement */
+  .post--image-wrapper > img {
     display: block;
-    transform: scale(1);
-    transform-origin: center;
-    transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    transform-origin: center center;
     will-change: transform;
   }
   
-  .post--item .btn {
-    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  /* Lien contenant "Voir le post" */
+  .post--text > a.inline-block {
     will-change: transform;
-  }
-  
-  .post--item:hover .post--image-wrapper img {
-    transform: scale(1.08);
-  }
-  
-  .post--item:hover .btn {
-    transform: translateY(-0.35rem);
   }
