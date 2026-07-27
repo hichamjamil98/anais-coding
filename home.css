@@ -1,41 +1,33 @@
 /* ==========================================================================
-   HOME PAGE — CTA + SKILL CARDS
-   Requires GSAP for the JS interactions.
+   HOME PAGE — COMPLETE INTERACTIONS
+   CTA + SKILL CARDS
 ========================================================================== */
 
 /* ==========================================================================
    1. HOME SUBHERO CTA
 ========================================================================== */
 
-.home--subhero-cta {
-  position: relative;
-  overflow: hidden;
-}
+/*
+ * La structure et la position de .home--subhero-cta_inside
+ * restent entièrement gérées par Webflow.
+ * Aucune propriété position/display/width/height n'est ajoutée ici.
+ */
 
-.home--subhero-cta > .image--absolute100 {
+ .home--subhero-cta > .image--absolute100 {
   will-change: transform;
-  transform-origin: center center;
 }
 
-.home--subhero-cta_inside {
-  position: relative;
-  z-index: 2;
-}
-
-.home--subhero-cta_inside .arrow--60 {
-  display: block;
-  flex: none;
-  max-width: none;
-  transform-origin: left center;
-  will-change: width;
-}
-
-/* Prevent CSS transitions from competing with GSAP */
-.home--subhero-cta > .image--absolute100,
-.home--subhero-cta_inside .arrow--60,
-.home--subhero-cta_inside h2,
-.home--subhero-cta_inside p {
-  transition: none !important;
+/*
+ * Taille de départ de la flèche.
+ * Cette règle corrige aussi toute ancienne largeur inline trop grande.
+ */
+.home--subhero-cta .arrow--60 {
+  width: 3.75rem !important;
+  max-width: 3.75rem !important;
+  min-width: 3.75rem !important;
+  height: auto;
+  flex: 0 0 auto;
+  will-change: width, max-width, min-width;
 }
 
 /* ==========================================================================
@@ -46,46 +38,52 @@
   position: relative;
 }
 
-.skill--image-wrapper {
+.skill--card .skill--image-wrapper {
   position: relative;
   overflow: hidden;
 }
 
-.skill--image-wrapper > .image--absolute100 {
-  will-change: transform;
-  transform-origin: center center;
-}
-
-.btn--arrow-wrapper.is--card {
-  pointer-events: none;
-  will-change: transform, opacity, visibility;
-}
-
-.skill--card .heading-style-64.is--skill,
-.skill--card h3 {
-  will-change: transform;
-}
-
-/* Prevent CSS transitions from competing with GSAP */
-.skill--card .btn--arrow-wrapper.is--card,
-.skill--card .heading-style-64.is--skill,
-.skill--card h3,
 .skill--card .skill--image-wrapper > .image--absolute100 {
+  will-change: transform;
+}
+
+/* Flèche cachée par défaut sur desktop */
+.skill--card .btn--arrow-wrapper.is--card {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-0.5rem);
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.skill--card .heading-style-64.is--skill {
+  will-change: transform;
+}
+
+/* GSAP contrôle ces animations */
+.home--subhero-cta > .image--absolute100,
+.home--subhero-cta .arrow--60,
+.skill--card .skill--image-wrapper > .image--absolute100,
+.skill--card .btn--arrow-wrapper.is--card,
+.skill--card .heading-style-64.is--skill {
   transition: none !important;
 }
 
-/* ==========================================================================
-   3. ACCESSIBILITY / REDUCED MOTION
-========================================================================== */
+/* Sur les appareils tactiles, la flèche reste visible */
+@media (hover: none), (pointer: coarse) {
+  .skill--card .btn--arrow-wrapper.is--card {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+  }
+}
 
+/* Accessibilité */
 @media (prefers-reduced-motion: reduce) {
   .home--subhero-cta > .image--absolute100,
-  .home--subhero-cta_inside .arrow--60,
+  .skill--card .skill--image-wrapper > .image--absolute100,
   .skill--card .btn--arrow-wrapper.is--card,
-  .skill--card .heading-style-64.is--skill,
-  .skill--card h3,
-  .skill--card .skill--image-wrapper > .image--absolute100 {
+  .skill--card .heading-style-64.is--skill {
     transform: none !important;
-    transition: none !important;
   }
 }
