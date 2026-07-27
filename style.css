@@ -115,17 +115,20 @@
     position: relative;
     cursor: pointer;
     transform: translateZ(0);
-    will-change: transform;
   }
   
   .btn--bg {
     transform-origin: center;
-    will-change: transform, opacity;
   }
   
+  /*
+    Boutons avec flèche :
+    - le SVG s'allonge uniquement sur l'axe horizontal ;
+    - le texte se déplace légèrement vers la droite ;
+    - aucun zoom du bouton ou du fond.
+  */
   .btn--arrow-wrapper {
-    transform-origin: left center;
-    will-change: transform;
+    overflow: visible;
   }
   
   .btn--arrow {
@@ -137,6 +140,7 @@
   
   .text--overflow {
     overflow: hidden;
+    will-change: transform;
   }
   
   /* La structure contient déjà deux copies du texte. */

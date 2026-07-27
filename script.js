@@ -400,20 +400,35 @@ window.addEventListener("DOMContentLoaded", () => {
   
   /* ========================================================================== 
      2. BUTTON HOVERS
+  
+     BOUTONS AVEC FLÈCHE :
+     - allongement horizontal du SVG uniquement ;
+     - léger déplacement horizontal du texte vers la droite ;
+     - aucun déplacement du bouton ;
+     - aucun zoom du fond ;
+     - aucun remplacement vertical du texte.
+  
+     BOUTONS SANS FLÈCHE :
+     - conservation du léger défilement vertical du double texte.
   ========================================================================== */
   
   function initButtons(reduceMotion) {
     if (reduceMotion) return;
-    if (window.matchMedia("(hover: none)").matches) return;
+  
+    const canHover = window.matchMedia(
+      "(hover: hover) and (pointer: fine)"
+    ).matches;
+  
+    if (!canHover) return;
   
     gsap.utils.toArray(".btn").forEach((button) => {
       if (button.dataset.hoverReady === "true") return;
       button.dataset.hoverReady = "true";
   
+      const textOverflow = button.querySelector(".text--overflow");
       const textTrack = button.querySelector(".btn-animate-chars__text");
-      const arrowWrapper = button.querySelector(".btn--arrow-wrapper");
       const arrow = button.querySelector(".btn--arrow");
-      const background = button.querySelector(".btn--bg");
+      const hasArrow = Boolean(arrow);
   
       const timeline = gsap.timeline({
         paused: true,
@@ -424,81 +439,88 @@ window.addEventListener("DOMContentLoaded", () => {
         }
       });
   
-      /* Le texte descend légèrement vers la droite pendant son remplacement. */
-      if (textTrack && textTrack.children.length > 1) {
+      if (hasArrow) {
+        /* Le SVG s'allonge sans déplacer son wrapper. */
+        gsap.set(arrow, {
+          transformOrigin: "left center"
+        });
+  
+        timeline.to(
+          arrow,
+          {
+            scaleX: 1.14
+          },
+          0
+        );
+  
+        /* Le bloc texte complet se décale légèrement vers la droite. */
+        if (textOverflow) {
+          timeline.to(
+            textOverflow,
+            {
+              x: "0.3rem"
+            },
+            0
+          );
+        } else if (textTrack) {
+          timeline.to(
+            textTrack,
+            {
+              x: "0.3rem"
+            },
+            0
+          );
+        }
+      } else if (textTrack && textTrack.children.length > 1) {
+        /* Hover discret pour les boutons sans flèche. */
         timeline.to(
           textTrack,
           {
-            yPercent: -100,
-            x: "0.16rem"
+            yPercent: -100
           },
           0
         );
       } else if (textTrack) {
-        timeline.to(textTrack, { x: "0.2rem" }, 0);
-      }
-  
-      /* Allongement léger et déplacement de la flèche. */
-      if (arrowWrapper) {
         timeline.to(
-          arrowWrapper,
+          textTrack,
           {
-            x: "0.35rem",
-            scaleX: 1.12,
-            transformOrigin: "left center"
-          },
-          0
-        );
-      } else if (arrow) {
-        timeline.to(
-          arrow,
-          {
-            x: "0.35rem",
-            scaleX: 1.12,
-            transformOrigin: "left center"
+            x: "0.18rem"
           },
           0
         );
       }
   
-      if (background) {
-        timeline.to(
-          background,
-          {
-            scale: 1.035
-          },
-          0
-        );
-      }
+      const play = () => timeline.play();
+      const reverse = () => timeline.reverse();
   
-      timeline.to(
-        button,
-        {
-          y: "-0.06rem",
-          duration: 0.45
-        },
-        0
-      );
-  
-      button.addEventListener("mouseenter", () => timeline.play());
-      button.addEventListener("mouseleave", () => timeline.reverse());
-      button.addEventListener("focusin", () => timeline.play());
-      button.addEventListener("focusout", () => timeline.reverse());
+      button.addEventListener("mouseenter", play);
+      button.addEventListener("mouseleave", reverse);
+      button.addEventListener("focusin", play);
+      button.addEventListener("focusout", reverse);
     });
   
+    /* Grand CTA : même mouvement minimal que les boutons avec flèche. */
     gsap.utils.toArray(".home--subhero-cta_inside").forEach((cta) => {
       if (cta.dataset.hoverReady === "true") return;
       cta.dataset.hoverReady = "true";
   
       const arrow = cta.querySelector(".arrow--60");
       const title = cta.querySelector("h2");
-      const image = cta.parentElement?.querySelector(".image--absolute100");
+  
+      if (!arrow && !title) return;
+  
+      if (arrow) {
+        gsap.set(arrow, {
+          transformOrigin: "left center"
+        });
+      }
   
       const timeline = gsap.timeline({
         paused: true,
         defaults: {
+          duration: 0.62,
           ease: "expo.out",
-          duration: 0.7
+          overwrite: "auto"
         }
       });
   
@@ -506,20 +528,20 @@ window.addEventListener("DOMContentLoaded", () => {
         timeline.to(
           arrow,
           {
-            x: "0.55rem",
-            scaleX: 1.1,
-            transformOrigin: "left center"
+            scaleX: 1.12
           },
           0
         );
       }
   
       if (title) {
-        timeline.to(title, { x: "0.2rem" }, 0);
-      }
-  
-      if (image) {
-        timeline.to(image, { scale: 1.035 }, 0);
+        timeline.to(
+          title,
+          {
+            x: "0.3rem"
+          },
+          0
+        );
       }
   
       cta.addEventListener("mouseenter", () => timeline.play());
