@@ -1,0 +1,65 @@
+/* ==========================================================================
+   RESSOURCES — ROW MASKS
+   ressources.css
+========================================================================== */
+
+/* Section reference */
+.section.is--about-tab {
+    position: relative;
+  }
+  
+  /* Grid must stay above row masks */
+  .section.is--about-tab .grid--6cl {
+    position: relative;
+    z-index: 2;
+  }
+  
+  /* Original Webflow element used only as a template */
+  .section.is--about-tab > .container--1360 > .row--mask {
+    display: none;
+  }
+  
+  /* Generated row masks */
+  .resources-row-mask {
+    position: absolute;
+    left: 50%;
+    width: 100vw;
+    height: 1px;
+    transform: translateX(-50%);
+    pointer-events: none;
+    z-index: 1;
+  
+    /*
+     * Change only these visual properties.
+     * Example: horizontal divider line.
+     */
+    background-color: currentColor;
+    opacity: 0.18;
+  }
+  
+  /* Optional: slightly thicker line */
+  .resources-row-mask::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: inherit;
+  }
+  
+  /* Resource image hover readiness */
+  .ressources--card {
+    position: relative;
+  }
+  
+  .ressource--image-wrapper {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .ressource--image-wrapper > .image--absolute100 {
+    will-change: transform;
+  }
+  
+  /* Keep generated masks invisible in Webflow Designer */
+  .w-editor .resources-row-mask {
+    display: none !important;
+  }
