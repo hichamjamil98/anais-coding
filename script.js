@@ -537,7 +537,7 @@ window.addEventListener("DOMContentLoaded", () => {
       gsap.set(logo, {
         xPercent: -50,
         x: 0,
-        y: "-0.85rem",
+        y: "-0.55rem",
         autoAlpha: 0,
         pointerEvents: "none"
       });

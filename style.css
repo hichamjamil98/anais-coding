@@ -213,7 +213,7 @@
   .social--link > .social--logo {
     position: absolute;
     left: 50%;
-    bottom: calc(100% + 0.75rem);
+    bottom: calc(100% + 0.35rem);
     z-index: 3;
     display: block;
     margin: 0;
