@@ -1,0 +1,91 @@
+/* ==========================================================================
+   FONDEMENTS — TAB CARD HOVERS
+   fnd.css
+========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Base
+-------------------------------------------------------------------------- */
+
+.fndmt--tab-link {
+    position: relative;
+  }
+  
+  .fndmt--tab-image {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* Image zoom target */
+  .fndmt--tab-image > .image--absolute100 {
+    will-change: transform;
+  }
+  
+  /* Heading movement target */
+  .fndmt--tab-heading {
+    will-change: transform;
+  }
+  
+  /* --------------------------------------------------------------------------
+     Arrow hidden by default
+  -------------------------------------------------------------------------- */
+  
+  .fndmt--tab-link .tab--arrow {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-0.5rem);
+    pointer-events: none;
+    will-change: transform, opacity;
+  }
+  
+  /* --------------------------------------------------------------------------
+     Rod content hidden by default
+  -------------------------------------------------------------------------- */
+  
+  .fndmt--tab-link > .heading--rod-parent {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(0.5rem);
+    pointer-events: none;
+    will-change: transform, opacity;
+  }
+  
+  /* Prevent CSS transitions from competing with GSAP */
+  .fndmt--tab-image > .image--absolute100,
+  .fndmt--tab-heading,
+  .fndmt--tab-link .tab--arrow,
+  .fndmt--tab-link > .heading--rod-parent {
+    transition: none !important;
+  }
+  
+  /* --------------------------------------------------------------------------
+     Touch devices
+     No hover exists, so keep useful information visible.
+  -------------------------------------------------------------------------- */
+  
+  @media (hover: none), (pointer: coarse) {
+    .fndmt--tab-link .tab--arrow,
+    .fndmt--tab-link > .heading--rod-parent {
+      opacity: 1;
+      visibility: visible;
+      transform: none;
+    }
+  }
+  
+  /* --------------------------------------------------------------------------
+     Reduced motion
+  -------------------------------------------------------------------------- */
+  
+  @media (prefers-reduced-motion: reduce) {
+    .fndmt--tab-image > .image--absolute100,
+    .fndmt--tab-heading,
+    .fndmt--tab-link .tab--arrow,
+    .fndmt--tab-link > .heading--rod-parent {
+      transition: none !important;
+    }
+  
+    .fndmt--tab-link .tab--arrow,
+    .fndmt--tab-link > .heading--rod-parent {
+      transform: none !important;
+    }
+  }
