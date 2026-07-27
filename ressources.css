@@ -2,26 +2,28 @@
     position: relative;
   }
   
-  /* Le contenu reste au-dessus des masques */
+  /* Le contenu CMS reste au-dessus des fonds de ligne */
+  .section.is--about-tab .w-dyn-list,
   .section.is--about-tab .grid--6cl {
     position: relative;
     z-index: 2;
   }
   
   /*
-   * Le seul élément .row--mask placé manuellement dans Webflow
-   * sert de modèle et reste caché.
+   * Élément modèle créé dans Webflow.
+   * Tu peux utiliser .row--mask ou .resources-row-mask.
    */
-  .section.is--about-tab > .container--1360 > .row--mask {
+  .section.is--about-tab > .container--1360 > .row--mask,
+  .section.is--about-tab > .container--1360 > .resources-row-mask:not(.is--generated) {
     display: none;
   }
   
   /*
-   * Masques générés.
-   * Aucune hauteur n'est imposée ici :
-   * la hauteur définie sur .row--mask dans Webflow est conservée.
+   * Clone généré derrière chaque rangée.
+   * Aucune hauteur n'est définie ici :
+   * elle reste celle configurée dans Webflow.
    */
-  .resources-row-mask {
+  .resources-row-mask.is--generated {
     position: absolute;
     left: 50%;
     width: 100vw;
@@ -30,7 +32,7 @@
     z-index: 1;
   }
   
-  /* Aucun masque généré dans le Designer Webflow */
-  .w-editor .resources-row-mask {
+  /* Rien dans le Designer Webflow */
+  .w-editor .resources-row-mask.is--generated {
     display: none !important;
   }

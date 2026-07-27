@@ -9,9 +9,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const grid = section.querySelector(".grid--6cl");
     if (!grid) return;
   
-    const template = section.querySelector(".row--mask");
+    /*
+     * Supporte les deux noms :
+     * .row--mask ou .resources-row-mask
+     */
+    const template =
+      section.querySelector(".row--mask") ||
+      section.querySelector(
+        ".resources-row-mask:not(.is--generated)"
+      );
+  
     if (!template) {
-      console.warn('Missing ".row--mask" template.');
+      console.warn(
+        'Ajoute un élément modèle avec la classe ".row--mask" ou ".resources-row-mask".'
+      );
       return;
     }
   
@@ -19,13 +30,13 @@ document.addEventListener("DOMContentLoaded", () => {
   
     function removeGeneratedMasks() {
       section
-        .querySelectorAll(".resources-row-mask")
+        .querySelectorAll(".resources-row-mask.is--generated")
         .forEach((mask) => mask.remove());
     }
   
-    function getVisibleGridItems() {
+    function getVisibleItems() {
       return Array.from(grid.children).filter((item) => {
-        const style = window.getComputedStyle(item);
+        const style = getComputedStyle(item);
         const rect = item.getBoundingClientRect();
   
         return (
@@ -45,7 +56,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const rect = item.getBoundingClientRect();
   
         let row = rows.find(
-          (candidate) => Math.abs(candidate.top - rect.top) <= tolerance
+          (candidate) =>
+            Math.abs(candidate.top - rect.top) <= tolerance
         );
   
         if (!row) {
@@ -63,29 +75,27 @@ document.addEventListener("DOMContentLoaded", () => {
       return rows.sort((a, b) => a.top - b.top);
     }
   
-    function cloneMask() {
+    function createMask() {
       const mask = template.cloneNode(true);
-  
-      /*
-       * On conserve volontairement la classe .row--mask.
-       * Le clone garde ainsi la hauteur, le fond, le radius
-       * et tous les autres styles configurés dans Webflow.
-       */
-      mask.classList.add("resources-row-mask");
   
       mask.removeAttribute("id");
       mask.removeAttribute("style");
       mask.removeAttribute("hidden");
+  
+      mask.classList.add(
+        "resources-row-mask",
+        "is--generated"
+      );
   
       mask.setAttribute("aria-hidden", "true");
   
       return mask;
     }
   
-    function buildRowMasks() {
+    function buildMasks() {
       removeGeneratedMasks();
   
-      const items = getVisibleGridItems();
+      const items = getVisibleItems();
       if (!items.length) return;
   
       const rows = groupItemsByRow(items);
@@ -98,23 +108,41 @@ document.addEventListener("DOMContentLoaded", () => {
           )
         );
   
-        const mask = cloneMask();
+        const mask = createMask();
   
         /*
-         * Le haut du masque commence exactement au bas
-         * de la ligne du grid.
+         * On ajoute d'abord le masque au DOM pour récupérer
+         * sa vraie hauteur définie dans Webflow.
          */
-        mask.style.top = `${rowBottom - sectionRect.top}px`;
-  
         section.appendChild(mask);
+  
+        const maskHeight =
+          mask.getBoundingClientRect().height;
+  
+        /*
+         * Le bas du masque est aligné avec le bas de la rangée.
+         *
+         * Exemple :
+         * rowBottom = 700
+         * maskHeight = 120
+         * top = 580
+         *
+         * Le masque couvre donc les 120 derniers pixels de la rangée.
+         */
+        const top =
+          rowBottom -
+          sectionRect.top -
+          maskHeight;
+  
+        mask.style.top = `${top}px`;
       });
     }
   
     function scheduleBuild() {
-      window.clearTimeout(resizeTimer);
+      clearTimeout(resizeTimer);
   
-      resizeTimer = window.setTimeout(() => {
-        window.requestAnimationFrame(buildRowMasks);
+      resizeTimer = setTimeout(() => {
+        requestAnimationFrame(buildMasks);
       }, 120);
     }
   
@@ -136,5 +164,5 @@ document.addEventListener("DOMContentLoaded", () => {
     window.addEventListener("resize", scheduleBuild);
     window.addEventListener("load", scheduleBuild);
   
-    buildRowMasks();
+    buildMasks();
   }
