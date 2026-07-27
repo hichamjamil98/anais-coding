@@ -389,3 +389,25 @@ html.is-gsap-ready [animation^="load"] {
     filter: none !important;
   }
 }
+
+@media (max-width: 991px) {
+
+  .inline-block.navbar--drop{
+      display:flex;
+      flex-direction:column;
+      gap:0;
+  }
+
+  .drop--menu.navbar--drop{
+      display:none;
+      opacity:1;
+      visibility:visible;
+      pointer-events:auto;
+  }
+
+  .inline-block.navbar--drop.is-drop-open
+  .drop--menu.navbar--drop{
+      display:block;
+  }
+
+}
