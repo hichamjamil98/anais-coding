@@ -169,15 +169,16 @@
   }
   
   /* ========================================================================== 
-     SOCIAL LINKS — DIMENSIONS WEBFLOW CONSERVÉES
+     SOCIAL LINKS — TEXTE + LOGO AU HOVER
   
-     Structure :
-     .social--link
-       img.social--logo
-       div (texte)
+     Structure attendue :
+     <a class="social--link">
+       <img class="social--logo">
+       <div>Youtube</div>
+     </a>
   
-     Aucun width/height/object-fit n'est imposé au logo.
-     Les dimensions définies dans Webflow restent donc intactes.
+     Important : aucune dimension n’est imposée au logo.
+     Sa largeur et sa hauteur restent celles définies dans Webflow.
   ========================================================================== */
   
   .social--link {
@@ -190,28 +191,34 @@
     isolation: isolate;
   }
   
-  .social--link > div,
-  .social--link > .social--logo {
-    position: absolute;
-    top: 50%;
-    left: 50%;
+  .social--link > div {
+    position: relative;
+    z-index: 2;
     display: block;
     margin: 0;
-    transition: none;
-    will-change: transform, opacity, visibility;
-  }
-  
-  .social--link > div {
-    z-index: 2;
     white-space: nowrap;
+    opacity: 1;
+    visibility: visible;
+    will-change: transform;
   }
   
   .social--link > .social--logo {
+    position: absolute;
+    top: 0;
+    left: 50%;
     z-index: 1;
-    max-width: none;
+    display: block;
+    margin: 0;
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
+    will-change: transform, opacity;
+  }
+  
+  .social--link,
+  .social--link > div,
+  .social--link > .social--logo {
+    transition: none !important;
   }
   
   /* ========================================================================== 

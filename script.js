@@ -511,12 +511,14 @@ window.addEventListener("DOMContentLoaded", () => {
     ).matches;
   
     links.forEach((link) => {
-      if (link.dataset.socialHoverReady === "true") return;
-  
       const logo = link.querySelector(":scope > .social--logo");
       const text = link.querySelector(":scope > div");
   
       if (!logo || !text) return;
+  
+      gsap.set(link, { clearProps: "height" });
+      gsap.set(text, { clearProps: "transform,opacity,visibility" });
+      gsap.set(logo, { clearProps: "transform,opacity,visibility" });
   
       link.dataset.socialHoverReady = "true";
   
@@ -529,15 +531,7 @@ window.addEventListener("DOMContentLoaded", () => {
           timeline = null;
         }
   
-        /* Nettoie uniquement les propriétés animées par GSAP. */
-        gsap.set([logo, text], {
-          clearProps: "transform,opacity,visibility"
-        });
-  
-        /* Base commune centrée, sans toucher aux dimensions du logo. */
         gsap.set(text, {
-          xPercent: -50,
-          yPercent: -50,
           x: 0,
           y: 0,
           autoAlpha: 1
@@ -545,30 +539,18 @@ window.addEventListener("DOMContentLoaded", () => {
   
         gsap.set(logo, {
           xPercent: -50,
-          yPercent: -50,
+          yPercent: 0,
           x: 0,
+          y: 0,
           autoAlpha: 0,
           pointerEvents: "none"
         });
   
-        const linkHeight = link.getBoundingClientRect().height;
         const logoHeight = logo.getBoundingClientRect().height;
-        const textHeight = text.getBoundingClientRect().height;
-        const gap = 8;
-  
-        /*
-         * Position finale : le groupe logo + texte reste centré dans le lien.
-         * Logo au-dessus, texte en dessous, tous deux visibles.
-         */
-        const logoFinalY = -((textHeight + gap) / 2);
-        const textFinalY = (logoHeight + gap) / 2;
-  
-        /* Le logo commence complètement au-dessus de la zone masquée. */
-        const logoStartY = -(
-          linkHeight / 2 +
-          logoHeight / 2 +
-          gap
-        );
+        const linkHeight = link.getBoundingClientRect().height;
+        const logoStartY = -(logoHeight + 6);
+        const availableShift = Math.max(0, (linkHeight - logoHeight) * 0.32);
+        const textShift = Math.min(12, Math.max(5, availableShift));
   
         gsap.set(logo, {
           y: logoStartY,
@@ -580,28 +562,27 @@ window.addEventListener("DOMContentLoaded", () => {
         timeline = gsap.timeline({
           paused: true,
           defaults: {
-            overwrite: "auto"
+            overwrite: "auto",
+            ease: "power4.out"
           }
         });
   
         timeline
           .to(
-            text,
+            logo,
             {
-              y: textFinalY,
+              y: 0,
               autoAlpha: 1,
-              duration: 0.65,
-              ease: "power4.out"
+              duration: 0.65
             },
             0
           )
           .to(
-            logo,
+            text,
             {
-              y: logoFinalY,
+              y: textShift,
               autoAlpha: 1,
-              duration: 0.72,
-              ease: "power4.out"
+              duration: 0.62
             },
             0.02
           );
