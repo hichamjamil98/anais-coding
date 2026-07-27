@@ -496,13 +496,14 @@ window.addEventListener("DOMContentLoaded", () => {
   }
   
   /* ========================================================================== 
-     3. SOCIAL LINKS — TEXTE VERS IMAGE
+     3. SOCIAL LINKS — TEXTE + LOGO VISIBLES AU HOVER
   
      Structure utilisée :
      .social--link > img.social--logo + div
   
-     État initial : seul le texte est visible.
-     Hover : le texte descend et l'image arrive depuis le haut.
+     État initial : seul le texte est visible et centré.
+     Hover : le logo arrive depuis le haut, le texte descend légèrement,
+     et les deux restent visibles simultanément.
   ========================================================================== */
   
   function initSocialLinks(reduceMotion) {
@@ -524,17 +525,21 @@ window.addEventListener("DOMContentLoaded", () => {
       link.dataset.socialHoverReady = "true";
   
       gsap.set(text, {
-        yPercent: 0,
+        y: 0,
         autoAlpha: 1
       });
   
       gsap.set(logo, {
-        yPercent: -110,
+        xPercent: -50,
+        yPercent: -130,
         autoAlpha: 0,
         pointerEvents: "none"
       });
   
       if (reduceMotion || !canHover) return;
+  
+      const logoHeight = logo.getBoundingClientRect().height || 38;
+      const textShift = Math.max(8, logoHeight * 0.72);
   
       const timeline = gsap.timeline({
         paused: true,
@@ -547,22 +552,22 @@ window.addEventListener("DOMContentLoaded", () => {
         .to(
           text,
           {
-            yPercent: 110,
-            autoAlpha: 0,
-            duration: 0.48,
-            ease: "power3.inOut"
+            y: textShift,
+            autoAlpha: 1,
+            duration: 0.62,
+            ease: "power4.out"
           },
           0
         )
         .to(
           logo,
           {
-            yPercent: 0,
+            yPercent: 18,
             autoAlpha: 1,
-            duration: 0.68,
+            duration: 0.7,
             ease: "power4.out"
           },
-          0.06
+          0.03
         );
   
       const play = () => timeline.play();

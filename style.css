@@ -169,14 +169,16 @@
   }
   
   /* ========================================================================== 
-     SOCIAL LINKS — STRUCTURE RÉELLE
+     SOCIAL LINKS — TEXTE + LOGO VISIBLES AU HOVER
   
+     Structure :
      .social--link
        img.social--logo
        div (texte)
   
-     État initial : texte visible, image cachée au-dessus.
-     Hover : texte descend, image arrive depuis le haut.
+     État initial : texte centré, logo caché au-dessus.
+     Hover : le logo descend depuis le haut et le texte se décale légèrement
+     vers le bas. Les deux restent visibles simultanément.
   ========================================================================== */
   
   .social--link {
@@ -198,20 +200,23 @@
   
   .social--link > .social--logo {
     position: absolute;
-    inset: 0;
+    top: 0;
+    left: 50%;
     z-index: 1;
     display: block;
-    width: 100%;
-    height: 100%;
+    width: 2.4rem;
+    height: 2.4rem;
     max-width: none;
     object-fit: cover;
+    border-radius: 0.45rem;
     opacity: 0;
-    transform: translateY(-110%);
+    visibility: hidden;
+    transform: translate(-50%, -130%);
     pointer-events: none;
     will-change: transform, opacity;
   }
   
-  /* GSAP pilote ces transformations : pas de transition CSS concurrente. */
+  /* GSAP pilote ces transformations. */
   .social--link > div,
   .social--link > .social--logo {
     transition: none;
