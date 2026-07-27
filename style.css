@@ -169,7 +169,7 @@
   }
   
   /* ========================================================================== 
-     SOCIAL LINKS — LOGO + TEXTE AVEC VRAI GAP
+     SOCIAL LINKS — LOGO ABSOLU, AUCUN REFLOW
   
      Structure attendue :
      <a class="social--link">
@@ -177,42 +177,44 @@
        <div>Youtube</div>
      </a>
   
-     Important : aucune largeur ni hauteur n'est imposée au logo.
-     Les dimensions réglées dans Webflow restent intactes.
+     Le logo reste hors du flux. Aucune largeur ou hauteur ne lui est imposée.
+     Aucun changement de hauteur ou de largeur du lien pendant le hover.
   ========================================================================== */
+  
+  .parent--socials,
+  .footer--bottom,
+  .is--footer-bottom {
+    overflow: visible;
+  }
   
   .social--link {
     position: relative;
-    display: inline-block;
-    box-sizing: border-box;
-    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
     cursor: pointer;
     isolation: isolate;
     vertical-align: middle;
-    flex: none;
   }
   
   .social--link > div {
-    position: absolute;
-    top: 0;
-    left: 50%;
+    position: relative;
     z-index: 2;
     display: block;
     margin: 0;
     padding: 0;
     white-space: nowrap;
-    line-height: inherit;
     opacity: 1;
     visibility: visible;
-    pointer-events: none;
     will-change: transform;
   }
   
   .social--link > .social--logo {
     position: absolute;
-    top: 0;
     left: 50%;
-    z-index: 1;
+    bottom: calc(100% + 0.75rem);
+    z-index: 3;
     display: block;
     margin: 0;
     padding: 0;

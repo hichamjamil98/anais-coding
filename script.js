@@ -496,11 +496,11 @@ window.addEventListener("DOMContentLoaded", () => {
   }
   
   /* ========================================================================== 
-     3. SOCIAL LINKS — LOGO + TEXTE AVEC VRAI GAP
+     3. SOCIAL LINKS — LOGO ABSOLU, AUCUN REFLOW
   
      Au repos : seul le texte est visible.
-     Au hover : le lien augmente de hauteur, le logo arrive depuis le haut,
-     puis le texte descend. Le logo conserve ses dimensions Webflow.
+     Au hover : le logo arrive depuis le haut, au-dessus du texte.
+     Le lien ne change jamais de largeur ni de hauteur.
   ========================================================================== */
   
   function initSocialLinks(reduceMotion) {
@@ -517,164 +517,77 @@ window.addEventListener("DOMContentLoaded", () => {
   
       if (!logo || !text) return;
   
-      let timeline = null;
-      let resizeTimer = null;
+      /* Nettoie les anciens styles inline des versions précédentes. */
+      gsap.set(link, {
+        clearProps: "width,height,minWidth,minHeight"
+      });
   
-      const buildAnimation = () => {
-        if (timeline) {
-          timeline.kill();
-          timeline = null;
+      gsap.set(text, {
+        clearProps: "transform,opacity,visibility,left,top"
+      });
+  
+      gsap.set(logo, {
+        clearProps: "transform,opacity,visibility,left,top"
+      });
+  
+      /*
+       * Le logo conserve exactement les dimensions Webflow.
+       * Il est seulement centré horizontalement et placé hors du flux.
+       */
+      gsap.set(logo, {
+        xPercent: -50,
+        x: 0,
+        y: "-0.85rem",
+        autoAlpha: 0,
+        pointerEvents: "none"
+      });
+  
+      gsap.set(text, {
+        x: 0,
+        y: 0,
+        autoAlpha: 1
+      });
+  
+      link.dataset.socialHoverReady = "true";
+  
+      if (reduceMotion || !canHover) return;
+  
+      const timeline = gsap.timeline({
+        paused: true,
+        defaults: {
+          duration: 0.62,
+          ease: "power4.out",
+          overwrite: "auto"
         }
+      });
   
-        /* Nettoyage des anciennes versions GSAP. */
-        gsap.set(link, {
-          clearProps: "width,height,minWidth,minHeight"
-        });
-  
-        gsap.set(text, {
-          clearProps: "transform,opacity,visibility"
-        });
-  
-        gsap.set(logo, {
-          clearProps: "transform,opacity,visibility"
-        });
-  
-        /* Mesures réelles : les dimensions du logo ne sont jamais modifiées. */
-        const textRect = text.getBoundingClientRect();
-        const logoRect = logo.getBoundingClientRect();
-        const linkRect = link.getBoundingClientRect();
-        const linkStyles = window.getComputedStyle(link);
-  
-        const textWidth = textRect.width;
-        const textHeight = textRect.height;
-        const logoWidth = logoRect.width;
-        const logoHeight = logoRect.height;
-  
-        if (!textWidth || !textHeight || !logoWidth || !logoHeight) return;
-  
-        const paddingLeft = parseFloat(linkStyles.paddingLeft) || 0;
-        const paddingRight = parseFloat(linkStyles.paddingRight) || 0;
-  
-        /* Espace visuel réel entre le logo et le texte. */
-        const GAP = 12;
-        const TOP_SPACE = 4;
-        const BOTTOM_SPACE = 4;
-  
-        const restWidth = Math.max(
-          linkRect.width,
-          textWidth + paddingLeft + paddingRight
+      timeline
+        .to(
+          logo,
+          {
+            y: 0,
+            autoAlpha: 1
+          },
+          0
+        )
+        .to(
+          text,
+          {
+            y: "0.12rem"
+          },
+          0
         );
   
-        const restHeight = Math.max(
-          textHeight,
-          parseFloat(linkStyles.minHeight) || 0
-        );
+      const open = () => timeline.play();
+      const close = () => timeline.reverse();
   
-        const hoverWidth = Math.max(
-          restWidth,
-          logoWidth + paddingLeft + paddingRight
-        );
-  
-        const hoverHeight =
-          TOP_SPACE + logoHeight + GAP + textHeight + BOTTOM_SPACE;
-  
-        /* État initial : texte seul, centré dans la hauteur d'origine. */
-        gsap.set(link, {
-          width: restWidth,
-          height: restHeight
-        });
-  
-        gsap.set(text, {
-          left: "50%",
-          top: 0,
-          xPercent: -50,
-          x: 0,
-          y: Math.max(0, (restHeight - textHeight) / 2),
-          autoAlpha: 1
-        });
-  
-        /* Logo placé hors du masque, au-dessus du lien. */
-        gsap.set(logo, {
-          left: "50%",
-          top: 0,
-          xPercent: -50,
-          x: 0,
-          y: -(logoHeight + TOP_SPACE + 4),
-          autoAlpha: 0,
-          pointerEvents: "none"
-        });
-  
-        link.dataset.socialHoverReady = "true";
-  
-        if (reduceMotion || !canHover) return;
-  
-        timeline = gsap.timeline({
-          paused: true,
-          defaults: {
-            overwrite: "auto",
-            ease: "power4.out"
-          }
-        });
-  
-        timeline
-          .to(
-            link,
-            {
-              width: hoverWidth,
-              height: hoverHeight,
-              duration: 0.68
-            },
-            0
-          )
-          .to(
-            logo,
-            {
-              y: TOP_SPACE,
-              autoAlpha: 1,
-              duration: 0.68
-            },
-            0.02
-          )
-          .to(
-            text,
-            {
-              /* La différence garantit exactement GAP px entre les deux. */
-              y: TOP_SPACE + logoHeight + GAP,
-              autoAlpha: 1,
-              duration: 0.66
-            },
-            0.02
-          );
-      };
-  
-      const open = () => {
-        if (timeline) timeline.play();
-      };
-  
-      const close = () => {
-        if (timeline) timeline.reverse();
-      };
-  
-      if (logo.complete && logo.naturalWidth > 0) {
-        requestAnimationFrame(buildAnimation);
-      } else {
-        logo.addEventListener("load", buildAnimation, { once: true });
-      }
-  
-      if (canHover && !reduceMotion) {
-        link.addEventListener("mouseenter", open);
-        link.addEventListener("mouseleave", close);
-      }
-  
+      link.addEventListener("mouseenter", open);
+      link.addEventListener("mouseleave", close);
       link.addEventListener("focusin", open);
       link.addEventListener("focusout", close);
-  
-      window.addEventListener("resize", () => {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(buildAnimation, 180);
-      });
     });
   }
+  
   /* ========================================================================== 
      4. SPLIT TEXT SETUP
   ========================================================================== */
