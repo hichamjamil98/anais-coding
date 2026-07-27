@@ -169,7 +169,7 @@
   }
   
   /* ========================================================================== 
-     SOCIAL LINKS — TEXTE + LOGO AU HOVER
+     SOCIAL LINKS — HAUTEUR ADAPTATIVE AU HOVER
   
      Structure attendue :
      <a class="social--link">
@@ -177,28 +177,30 @@
        <div>Youtube</div>
      </a>
   
-     Important : aucune dimension n’est imposée au logo.
-     Sa largeur et sa hauteur restent celles définies dans Webflow.
+     Le logo conserve exactement les dimensions réglées dans Webflow.
+     Le JS anime uniquement la hauteur du lien et les positions verticales.
   ========================================================================== */
   
   .social--link {
     position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    display: inline-block;
     overflow: hidden;
     cursor: pointer;
     isolation: isolate;
+    vertical-align: middle;
   }
   
   .social--link > div {
-    position: relative;
+    position: absolute;
+    top: 0;
+    left: 50%;
     z-index: 2;
     display: block;
     margin: 0;
     white-space: nowrap;
     opacity: 1;
     visibility: visible;
+    pointer-events: none;
     will-change: transform;
   }
   

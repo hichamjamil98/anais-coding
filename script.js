@@ -496,10 +496,11 @@ window.addEventListener("DOMContentLoaded", () => {
   }
   
   /* ========================================================================== 
-     3. SOCIAL LINKS — LOGO + TEXTE VISIBLES AU HOVER
+     3. SOCIAL LINKS — LOGO + TEXTE AVEC HAUTEUR ADAPTATIVE
   
-     Les dimensions du logo sont lues directement depuis Webflow.
-     Le script ne modifie jamais width, height, object-fit ou border-radius.
+     Au repos : seul le texte est visible.
+     Au hover : le lien grandit verticalement, le logo arrive du haut et le
+     texte descend. Aucune dimension du logo n'est modifiée.
   ========================================================================== */
   
   function initSocialLinks(reduceMotion) {
@@ -516,12 +517,6 @@ window.addEventListener("DOMContentLoaded", () => {
   
       if (!logo || !text) return;
   
-      gsap.set(link, { clearProps: "height" });
-      gsap.set(text, { clearProps: "transform,opacity,visibility" });
-      gsap.set(logo, { clearProps: "transform,opacity,visibility" });
-  
-      link.dataset.socialHoverReady = "true";
-  
       let timeline = null;
       let resizeTimer = null;
   
@@ -531,31 +526,61 @@ window.addEventListener("DOMContentLoaded", () => {
           timeline = null;
         }
   
+        /* Nettoie uniquement les propriétés laissées par les anciennes versions. */
+        gsap.set(link, { clearProps: "height,minHeight,width,minWidth" });
+        gsap.set(text, { clearProps: "transform,opacity,visibility" });
+        gsap.set(logo, { clearProps: "transform,opacity,visibility" });
+  
+        const textRect = text.getBoundingClientRect();
+        const logoRect = logo.getBoundingClientRect();
+        const styles = window.getComputedStyle(link);
+  
+        const paddingLeft = parseFloat(styles.paddingLeft) || 0;
+        const paddingRight = parseFloat(styles.paddingRight) || 0;
+        const currentWidth = link.getBoundingClientRect().width;
+  
+        const textWidth = textRect.width;
+        const textHeight = textRect.height;
+        const logoHeight = logoRect.height;
+  
+        const horizontalWidth = Math.max(
+          currentWidth,
+          textWidth + paddingLeft + paddingRight
+        );
+  
+        const initialHeight = Math.max(
+          parseFloat(styles.minHeight) || 0,
+          textHeight
+        );
+  
+        const topPadding = 6;
+        const bottomPadding = 6;
+        const gap = 7;
+        const hoverHeight = topPadding + logoHeight + gap + textHeight + bottomPadding;
+  
+        gsap.set(link, {
+          width: horizontalWidth,
+          height: initialHeight
+        });
+  
+        /* Texte centré verticalement au repos. */
         gsap.set(text, {
+          xPercent: -50,
           x: 0,
-          y: 0,
+          y: Math.max(0, (initialHeight - textHeight) / 2),
           autoAlpha: 1
         });
   
+        /* Logo caché juste au-dessus du masque. */
         gsap.set(logo, {
           xPercent: -50,
-          yPercent: 0,
           x: 0,
-          y: 0,
+          y: -(logoHeight + 4),
           autoAlpha: 0,
           pointerEvents: "none"
         });
   
-        const logoHeight = logo.getBoundingClientRect().height;
-        const linkHeight = link.getBoundingClientRect().height;
-        const logoStartY = -(logoHeight + 6);
-        const availableShift = Math.max(0, (linkHeight - logoHeight) * 0.32);
-        const textShift = Math.min(12, Math.max(5, availableShift));
-  
-        gsap.set(logo, {
-          y: logoStartY,
-          autoAlpha: 0
-        });
+        link.dataset.socialHoverReady = "true";
   
         if (reduceMotion || !canHover) return;
   
@@ -569,20 +594,28 @@ window.addEventListener("DOMContentLoaded", () => {
   
         timeline
           .to(
-            logo,
+            link,
             {
-              y: 0,
-              autoAlpha: 1,
-              duration: 0.65
+              height: hoverHeight,
+              duration: 0.62
             },
             0
           )
           .to(
+            logo,
+            {
+              y: topPadding,
+              autoAlpha: 1,
+              duration: 0.68
+            },
+            0.02
+          )
+          .to(
             text,
             {
-              y: textShift,
+              y: topPadding + logoHeight + gap,
               autoAlpha: 1,
-              duration: 0.62
+              duration: 0.64
             },
             0.02
           );
@@ -597,7 +630,7 @@ window.addEventListener("DOMContentLoaded", () => {
       };
   
       if (logo.complete) {
-        createTimeline();
+        requestAnimationFrame(createTimeline);
       } else {
         logo.addEventListener("load", createTimeline, { once: true });
       }
@@ -612,7 +645,7 @@ window.addEventListener("DOMContentLoaded", () => {
   
       window.addEventListener("resize", () => {
         clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(createTimeline, 150);
+        resizeTimer = setTimeout(createTimeline, 180);
       });
     });
   }
