@@ -1,0 +1,32 @@
+/* ==========================================================================
+   POSTS HOVER
+========================================================================== */
+
+.post--item {
+    cursor: pointer;
+  }
+  
+  .post--image-wrapper {
+    overflow: hidden;
+  }
+  
+  .post--image-wrapper img {
+    display: block;
+    transform: scale(1);
+    transform-origin: center;
+    transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+  }
+  
+  .post--item .btn {
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+  }
+  
+  .post--item:hover .post--image-wrapper img {
+    transform: scale(1.08);
+  }
+  
+  .post--item:hover .btn {
+    transform: translateY(-0.35rem);
+  }
