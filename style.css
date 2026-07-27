@@ -122,10 +122,28 @@ html.is-gsap-ready [animation^="load"] {
 
 .nav--menu > .inline-block.navbar--drop {
   z-index: 2;
+  margin: 0;
+  padding: 0;
 }
 
 .nav--menu > .inline-block.navbar--drop.is-drop-open {
   z-index: 30;
+}
+
+/*
+  Les balises <defs> générées hors d'un SVG ne doivent jamais participer
+  au layout. Elles peuvent sinon créer un espace vide sur mobile.
+*/
+.nav--menu > .inline-block.navbar--drop > defs,
+.nav--menu > .inline-block.navbar--drop > .defs {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
 }
 
 /*
@@ -135,7 +153,6 @@ html.is-gsap-ready [animation^="load"] {
 .nav--menu
   > .inline-block.navbar--drop
   > .drop--menu.navbar--drop {
-  display: block;
   visibility: hidden;
   opacity: 0;
   pointer-events: none;
@@ -147,6 +164,31 @@ html.is-gsap-ready [animation^="load"] {
   > .drop--menu.navbar--drop {
   visibility: visible;
   pointer-events: auto;
+}
+
+/*
+  Mobile/tablette : lorsque le dropdown est fermé, il est totalement retiré
+  du layout afin qu'il ne crée aucun espace au chargement.
+*/
+@media screen and (max-width: 991px) {
+  .nav--menu
+    > .inline-block.navbar--drop:not(.is-drop-open)
+    > .drop--menu.navbar--drop {
+    display: none !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .nav--menu
+    > .inline-block.navbar--drop.is-drop-open
+    > .drop--menu.navbar--drop {
+    display: block !important;
+    height: auto;
+  }
 }
 
 .drop--menu.navbar--drop .drop--link,
@@ -388,26 +430,4 @@ html.is-gsap-ready [animation^="load"] {
     transform: none !important;
     filter: none !important;
   }
-}
-
-@media (max-width: 991px) {
-
-  .inline-block.navbar--drop{
-      display:flex;
-      flex-direction:column;
-      gap:0;
-  }
-
-  .drop--menu.navbar--drop{
-      display:none;
-      opacity:1;
-      visibility:visible;
-      pointer-events:auto;
-  }
-
-  .inline-block.navbar--drop.is-drop-open
-  .drop--menu.navbar--drop{
-      display:block;
-  }
-
 }

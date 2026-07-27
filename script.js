@@ -423,6 +423,19 @@ function initNavbarDropdowns(reduceMotion) {
     if (dropdown.dataset.dropdownReady === "true") return;
     dropdown.dataset.dropdownReady = "true";
 
+    /*
+      Les <defs> placés directement dans le wrapper n'ont aucun rôle visuel
+      et peuvent créer un espace dans le layout mobile.
+    */
+    dropdown
+      .querySelectorAll(":scope > defs, :scope > .defs")
+      .forEach((defs) => {
+        defs.style.display = "none";
+        defs.style.width = "0";
+        defs.style.height = "0";
+        defs.setAttribute("aria-hidden", "true");
+      });
+
     const trigger = dropdown.querySelector(":scope > .btn");
     const menu = dropdown.querySelector(
       ":scope > .drop--menu.navbar--drop"
@@ -442,14 +455,39 @@ function initNavbarDropdowns(reduceMotion) {
     trigger.setAttribute("aria-expanded", "false");
     menu.setAttribute("aria-hidden", "true");
 
-    /*
-      On modifie uniquement la visibilité.
-      Aucun x, y, height, width ou transform n'est appliqué au menu.
-    */
+    function setClosedDisplay() {
+      if (desktopMedia.matches) {
+        /* Restaure le display défini dans Webflow sur desktop. */
+        gsap.set(menu, { clearProps: "display,height,minHeight,overflow" });
+      } else {
+        /* Retire entièrement le dropdown du layout mobile. */
+        gsap.set(menu, {
+          display: "none",
+          height: 0,
+          minHeight: 0,
+          overflow: "hidden"
+        });
+      }
+    }
+
+    function setOpenDisplay() {
+      if (desktopMedia.matches) {
+        gsap.set(menu, { clearProps: "display,height,minHeight,overflow" });
+      } else {
+        gsap.set(menu, {
+          display: "block",
+          height: "auto",
+          clearProps: "minHeight,overflow"
+        });
+      }
+    }
+
+    /* Aucun x, y ou transform n'est appliqué au menu. */
     gsap.set(menu, {
       autoAlpha: 0,
       pointerEvents: "none"
     });
+    setClosedDisplay();
 
     gsap.set(links, {
       y: "0.75rem",
@@ -476,7 +514,6 @@ function initNavbarDropdowns(reduceMotion) {
     function closeOtherDropdowns() {
       dropdowns.forEach((otherDropdown) => {
         if (otherDropdown === dropdown) return;
-
         otherDropdown.dispatchEvent(
           new CustomEvent("navbar-dropdown-close")
         );
@@ -493,6 +530,7 @@ function initNavbarDropdowns(reduceMotion) {
       if (timeline) timeline.kill();
 
       dropdown.classList.add("is-drop-open");
+      setOpenDisplay();
       updateAccessibility(true);
 
       if (reduceMotion) {
@@ -500,28 +538,22 @@ function initNavbarDropdowns(reduceMotion) {
           autoAlpha: 1,
           pointerEvents: "auto"
         });
-
         gsap.set(links, {
           y: 0,
           autoAlpha: 1,
           filter: "blur(0px)"
         });
-
         gsap.set(dividers, { scaleX: 1 });
         return;
       }
 
       timeline = gsap.timeline({
-        defaults: {
-          overwrite: "auto"
-        }
+        defaults: { overwrite: "auto" }
       });
 
       timeline.fromTo(
         menu,
-        {
-          autoAlpha: 0
-        },
+        { autoAlpha: 0 },
         {
           autoAlpha: 1,
           pointerEvents: "auto",
@@ -565,42 +597,38 @@ function initNavbarDropdowns(reduceMotion) {
 
     function closeDropdown(immediate = false) {
       clearCloseTimeout();
-      if (!isOpen) return;
+      if (!isOpen) {
+        setClosedDisplay();
+        return;
+      }
 
       isOpen = false;
-
       if (timeline) timeline.kill();
       updateAccessibility(false);
 
-      if (reduceMotion || immediate) {
+      function finalizeClose() {
         dropdown.classList.remove("is-drop-open");
-
         gsap.set(menu, {
           autoAlpha: 0,
           pointerEvents: "none"
         });
+        setClosedDisplay();
+      }
 
+      if (reduceMotion || immediate) {
+        finalizeClose();
         gsap.set(links, {
           y: "0.75rem",
           autoAlpha: 0,
           filter: "blur(4px)"
         });
-
         gsap.set(dividers, { scaleX: 0 });
         return;
       }
 
       timeline = gsap.timeline({
-        defaults: {
-          overwrite: "auto"
-        },
-        onComplete: () => {
-          dropdown.classList.remove("is-drop-open");
-
-          gsap.set(menu, {
-            pointerEvents: "none"
-          });
-        }
+        defaults: { overwrite: "auto" },
+        onComplete: finalizeClose
       });
 
       timeline.to(
@@ -643,18 +671,11 @@ function initNavbarDropdowns(reduceMotion) {
 
     function delayedClose() {
       clearCloseTimeout();
-
-      closeTimeout = window.setTimeout(() => {
-        closeDropdown();
-      }, 140);
+      closeTimeout = window.setTimeout(() => closeDropdown(), 140);
     }
 
     function toggleDropdown() {
-      if (isOpen) {
-        closeDropdown();
-      } else {
-        openDropdown();
-      }
+      isOpen ? closeDropdown() : openDropdown();
     }
 
     dropdown.addEventListener("mouseenter", () => {
@@ -669,7 +690,6 @@ function initNavbarDropdowns(reduceMotion) {
 
     trigger.addEventListener("click", (event) => {
       if (desktopMedia.matches) return;
-
       event.preventDefault();
       event.stopPropagation();
       toggleDropdown();
@@ -708,9 +728,7 @@ function initNavbarDropdowns(reduceMotion) {
     });
 
     links.forEach((link) => {
-      link.addEventListener("click", () => {
-        closeDropdown(true);
-      });
+      link.addEventListener("click", () => closeDropdown(true));
     });
 
     dropdown.addEventListener("navbar-dropdown-close", () => {
@@ -724,12 +742,15 @@ function initNavbarDropdowns(reduceMotion) {
     });
 
     desktopMedia.addEventListener("change", () => {
-      closeDropdown(true);
-
+      if (timeline) timeline.kill();
+      isOpen = false;
+      updateAccessibility(false);
+      dropdown.classList.remove("is-drop-open");
       gsap.set(menu, {
         autoAlpha: 0,
         pointerEvents: "none"
       });
+      setClosedDisplay();
     });
   });
 }
