@@ -1,15 +1,6 @@
-/* ==========================================================================
-   RESSOURCES — ROW MASKS
-   ressources.js
-========================================================================== */
-
 document.addEventListener("DOMContentLoaded", () => {
     initResourcesRowMasks();
   });
-  
-  /* ==========================================================================
-     CREATE ONE FULL-VIEWPORT MASK AT THE BOTTOM OF EACH CMS GRID ROW
-  ========================================================================== */
   
   function initResourcesRowMasks() {
     const section = document.querySelector(".section.is--about-tab");
@@ -19,9 +10,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!grid) return;
   
     const template = section.querySelector(".row--mask");
+    if (!template) {
+      console.warn('Missing ".row--mask" template.');
+      return;
+    }
   
-    let resizeTimer = null;
-    let observer = null;
+    let resizeTimer;
   
     function removeGeneratedMasks() {
       section
@@ -29,33 +23,34 @@ document.addEventListener("DOMContentLoaded", () => {
         .forEach((mask) => mask.remove());
     }
   
-    function getGridItems() {
+    function getVisibleGridItems() {
       return Array.from(grid.children).filter((item) => {
         const style = window.getComputedStyle(item);
+        const rect = item.getBoundingClientRect();
   
         return (
           style.display !== "none" &&
           style.visibility !== "hidden" &&
-          item.getBoundingClientRect().height > 0
+          rect.width > 0 &&
+          rect.height > 0
         );
       });
     }
   
-    function groupItemsByVisualRow(items) {
+    function groupItemsByRow(items) {
       const rows = [];
       const tolerance = 4;
   
       items.forEach((item) => {
         const rect = item.getBoundingClientRect();
-        const top = rect.top;
   
         let row = rows.find(
-          (currentRow) => Math.abs(currentRow.top - top) <= tolerance
+          (candidate) => Math.abs(candidate.top - rect.top) <= tolerance
         );
   
         if (!row) {
           row = {
-            top,
+            top: rect.top,
             items: []
           };
   
@@ -68,19 +63,20 @@ document.addEventListener("DOMContentLoaded", () => {
       return rows.sort((a, b) => a.top - b.top);
     }
   
-    function createMask() {
-      let mask;
+    function cloneMask() {
+      const mask = template.cloneNode(true);
   
-      if (template) {
-        mask = template.cloneNode(true);
-        mask.removeAttribute("id");
-        mask.classList.remove("row--mask");
-      } else {
-        mask = document.createElement("div");
-      }
-  
+      /*
+       * On conserve volontairement la classe .row--mask.
+       * Le clone garde ainsi la hauteur, le fond, le radius
+       * et tous les autres styles configurés dans Webflow.
+       */
       mask.classList.add("resources-row-mask");
+  
+      mask.removeAttribute("id");
       mask.removeAttribute("style");
+      mask.removeAttribute("hidden");
+  
       mask.setAttribute("aria-hidden", "true");
   
       return mask;
@@ -89,23 +85,25 @@ document.addEventListener("DOMContentLoaded", () => {
     function buildRowMasks() {
       removeGeneratedMasks();
   
-      const items = getGridItems();
+      const items = getVisibleGridItems();
       if (!items.length) return;
   
-      const rows = groupItemsByVisualRow(items);
+      const rows = groupItemsByRow(items);
       const sectionRect = section.getBoundingClientRect();
   
       rows.forEach((row) => {
-        /*
-         * Use the lowest card bottom in the row.
-         * This works even if cards have different content heights.
-         */
         const rowBottom = Math.max(
-          ...row.items.map((item) => item.getBoundingClientRect().bottom)
+          ...row.items.map(
+            (item) => item.getBoundingClientRect().bottom
+          )
         );
   
-        const mask = createMask();
+        const mask = cloneMask();
   
+        /*
+         * Le haut du masque commence exactement au bas
+         * de la ligne du grid.
+         */
         mask.style.top = `${rowBottom - sectionRect.top}px`;
   
         section.appendChild(mask);
@@ -120,12 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }, 120);
     }
   
-    /*
-     * Wait for images because their final dimensions can change row heights.
-     */
-    const images = grid.querySelectorAll("img");
-  
-    images.forEach((image) => {
+    grid.querySelectorAll("img").forEach((image) => {
       if (!image.complete) {
         image.addEventListener("load", scheduleBuild, {
           once: true
@@ -133,10 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   
-    /*
-     * Rebuild when the grid or CMS content changes.
-     */
-    observer = new MutationObserver(scheduleBuild);
+    const observer = new MutationObserver(scheduleBuild);
   
     observer.observe(grid, {
       childList: true,
