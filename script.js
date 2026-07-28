@@ -417,11 +417,14 @@ function initNavbarDropdowns(reduceMotion) {
   if (!dropdowns.length) return;
 
   const desktopMedia = window.matchMedia(
-    "(min-width: 992px) and (hover: hover) and (pointer: fine)"
+    "(min-width: 992px) and (hover: hover)"
   );
 
   dropdowns.forEach((dropdown) => {
-    if (dropdown.dataset.dropdownReady === "true") return;
+    /*
+      Ne pas bloquer l'initialisation avec un ancien data-dropdown-ready
+      éventuellement laissé par une version précédente du script.
+    */
     dropdown.dataset.dropdownReady = "true";
 
     const trigger = dropdown.querySelector(":scope > .btn");
@@ -651,32 +654,27 @@ function initNavbarDropdowns(reduceMotion) {
       else openDropdown();
     }
 
-    /* Desktop : hover sur le bouton ET sur le dropdown. */
-    trigger.addEventListener("mouseenter", () => {
-      if (!isDesktop()) return;
-      openDropdown();
-    });
-
-    trigger.addEventListener("mouseleave", () => {
-      if (!isDesktop()) return;
-      delayedClose();
-    });
-
-    menu.addEventListener("mouseenter", () => {
-      if (!isDesktop()) return;
+    /*
+      Desktop : le hover est géré sur le wrapper complet.
+      Le wrapper contient à la fois le bouton Fondements et le dropdown,
+      ce qui évite une fermeture entre les deux zones.
+    */
+    dropdown.addEventListener("pointerenter", (event) => {
+      if (!isDesktop() || event.pointerType === "touch") return;
       clearCloseTimeout();
       openDropdown();
     });
 
-    menu.addEventListener("mouseleave", () => {
-      if (!isDesktop()) return;
+    dropdown.addEventListener("pointerleave", (event) => {
+      if (!isDesktop() || event.pointerType === "touch") return;
       delayedClose();
     });
 
-    /* Sécurité : le parent conserve aussi le hover. */
+    /* Fallback souris pour les navigateurs sans Pointer Events fiables. */
     dropdown.addEventListener("mouseenter", () => {
       if (!isDesktop()) return;
       clearCloseTimeout();
+      openDropdown();
     });
 
     dropdown.addEventListener("mouseleave", () => {
