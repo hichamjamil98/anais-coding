@@ -457,29 +457,59 @@ function initNavbarDropdowns(reduceMotion) {
 
     function setClosedDisplay() {
       if (desktopMedia.matches) {
-        /* Restaure le display défini dans Webflow sur desktop. */
-        gsap.set(menu, { clearProps: "display,height,minHeight,overflow" });
-      } else {
-        /* Retire entièrement le dropdown du layout mobile. */
+        /* Desktop : la géométrie reste entièrement celle de Webflow. */
         gsap.set(menu, {
-          display: "none",
-          height: 0,
-          minHeight: 0,
-          overflow: "hidden"
+          clearProps:
+            "display,width,height,minWidth,minHeight,maxWidth,maxHeight," +
+            "margin,padding,border,overflow,lineHeight"
         });
+        return;
       }
+
+      /*
+        Mobile/tablette : on retire réellement le dropdown du flux.
+        Les propriétés directes sécurisent le résultat même si Webflow
+        ou une ancienne animation GSAP a laissé des styles inline.
+      */
+      menu.style.setProperty("display", "none", "important");
+      menu.style.setProperty("width", "0", "important");
+      menu.style.setProperty("height", "0", "important");
+      menu.style.setProperty("min-width", "0", "important");
+      menu.style.setProperty("min-height", "0", "important");
+      menu.style.setProperty("max-width", "0", "important");
+      menu.style.setProperty("max-height", "0", "important");
+      menu.style.setProperty("margin", "0", "important");
+      menu.style.setProperty("padding", "0", "important");
+      menu.style.setProperty("border", "0", "important");
+      menu.style.setProperty("overflow", "hidden", "important");
+      menu.style.setProperty("line-height", "0", "important");
     }
 
     function setOpenDisplay() {
       if (desktopMedia.matches) {
-        gsap.set(menu, { clearProps: "display,height,minHeight,overflow" });
-      } else {
         gsap.set(menu, {
-          display: "block",
-          height: "auto",
-          clearProps: "minHeight,overflow"
+          clearProps:
+            "display,width,height,minWidth,minHeight,maxWidth,maxHeight," +
+            "margin,padding,border,overflow,lineHeight"
         });
+        return;
       }
+
+      [
+        "width",
+        "height",
+        "min-width",
+        "min-height",
+        "max-width",
+        "max-height",
+        "margin",
+        "padding",
+        "border",
+        "overflow",
+        "line-height"
+      ].forEach((property) => menu.style.removeProperty(property));
+
+      menu.style.setProperty("display", "block", "important");
     }
 
     /* Aucun x, y ou transform n'est appliqué au menu. */

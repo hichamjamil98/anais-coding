@@ -117,7 +117,8 @@ html.is-gsap-ready [animation^="load"] {
 
 /* ========================================================================== 
    NAVBAR — DROPDOWN .drop--menu.navbar--drop
-   Position et dimensions entièrement définies dans Webflow
+   Desktop : position définie dans Webflow
+   Mobile : aucun espace lorsque le dropdown est fermé
 ========================================================================== */
 
 .nav--menu > .inline-block.navbar--drop {
@@ -130,10 +131,7 @@ html.is-gsap-ready [animation^="load"] {
   z-index: 30;
 }
 
-/*
-  Les balises <defs> générées hors d'un SVG ne doivent jamais participer
-  au layout. Elles peuvent sinon créer un espace vide sur mobile.
-*/
+/* Les <defs> hors SVG ne doivent jamais participer au layout. */
 .nav--menu > .inline-block.navbar--drop > defs,
 .nav--menu > .inline-block.navbar--drop > .defs {
   display: none !important;
@@ -141,15 +139,16 @@ html.is-gsap-ready [animation^="load"] {
   height: 0 !important;
   min-width: 0 !important;
   min-height: 0 !important;
+  max-width: 0 !important;
+  max-height: 0 !important;
   margin: 0 !important;
   padding: 0 !important;
+  border: 0 !important;
   overflow: hidden !important;
+  line-height: 0 !important;
 }
 
-/*
-  Important : aucune position, dimension ou transformation n'est imposée ici.
-  Le dropdown conserve exactement les réglages définis dans Webflow.
-*/
+/* Desktop : aucune position ou dimension n'est imposée au dropdown. */
 .nav--menu
   > .inline-block.navbar--drop
   > .drop--menu.navbar--drop {
@@ -167,27 +166,71 @@ html.is-gsap-ready [animation^="load"] {
 }
 
 /*
-  Mobile/tablette : lorsque le dropdown est fermé, il est totalement retiré
-  du layout afin qu'il ne crée aucun espace au chargement.
+  Mobile/tablette : le dropdown fermé est totalement retiré du flux.
+  Ces règles sont placées avec une forte spécificité pour dépasser Webflow.
 */
 @media screen and (max-width: 991px) {
+  .nav--menu > .inline-block.navbar--drop {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0 !important;
+    row-gap: 0 !important;
+    column-gap: 0 !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  .nav--menu
+    > .inline-block.navbar--drop
+    > .btn.navbar--drop-3 {
+    flex: 0 0 auto !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
   .nav--menu
     > .inline-block.navbar--drop:not(.is-drop-open)
     > .drop--menu.navbar--drop {
     display: none !important;
+    position: static;
+    width: 0 !important;
     height: 0 !important;
+    min-width: 0 !important;
     min-height: 0 !important;
+    max-width: 0 !important;
+    max-height: 0 !important;
     margin: 0 !important;
-    padding-top: 0 !important;
-    padding-bottom: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
     overflow: hidden !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    line-height: 0 !important;
   }
 
   .nav--menu
     > .inline-block.navbar--drop.is-drop-open
     > .drop--menu.navbar--drop {
     display: block !important;
-    height: auto;
+    width: auto !important;
+    height: auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: none !important;
+    max-height: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    overflow: visible !important;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    line-height: normal !important;
   }
 }
 
