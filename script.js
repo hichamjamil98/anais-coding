@@ -405,7 +405,8 @@ function initNavbar(reduceMotion) {
 
    Desktop : ouverture au hover et au focus.
    Tablette/mobile : ouverture au clic.
-   La position et les dimensions restent entièrement gérées dans Webflow.
+   La navbar principale n'est jamais modifiée.
+   La position du dropdown reste entièrement définie dans Webflow.
 ========================================================================== */
 
 function initNavbarDropdowns(reduceMotion) {
@@ -442,7 +443,6 @@ function initNavbarDropdowns(reduceMotion) {
     trigger.setAttribute("aria-expanded", "false");
     menu.setAttribute("aria-hidden", "true");
 
-    /* Neutralise seulement les <defs> directs du wrapper dropdown. */
     dropdown
       .querySelectorAll(":scope > defs, :scope > .defs")
       .forEach((defs) => {
@@ -454,55 +454,52 @@ function initNavbarDropdowns(reduceMotion) {
       return desktopMedia.matches;
     }
 
-    function setClosedState() {
-      dropdown.classList.remove("is-drop-open");
-
-      gsap.set(menu, {
-        autoAlpha: 0,
-        pointerEvents: "none"
-      });
-
-      /* Sur mobile uniquement, retire le dropdown du flux. */
-      if (!isDesktop()) {
-        menu.style.setProperty("display", "none", "important");
-      } else {
-        menu.style.removeProperty("display");
-      }
+    function clearCloseTimeout() {
+      if (!closeTimeout) return;
+      window.clearTimeout(closeTimeout);
+      closeTimeout = null;
     }
-
-    function setOpenState() {
-      dropdown.classList.add("is-drop-open");
-
-      /* Ne modifie aucune position ni dimension Webflow. */
-      if (!isDesktop()) {
-        menu.style.setProperty("display", "block", "important");
-      } else {
-        menu.style.removeProperty("display");
-      }
-    }
-
-    gsap.set(links, {
-      y: "0.75rem",
-      autoAlpha: 0,
-      filter: "blur(4px)"
-    });
-
-    gsap.set(dividers, {
-      scaleX: 0,
-      transformOrigin: "left center"
-    });
-
-    setClosedState();
 
     function updateAccessibility(open) {
       trigger.setAttribute("aria-expanded", String(open));
       menu.setAttribute("aria-hidden", String(!open));
     }
 
-    function clearCloseTimeout() {
-      if (!closeTimeout) return;
-      window.clearTimeout(closeTimeout);
-      closeTimeout = null;
+    function prepareClosedState() {
+      dropdown.classList.remove("is-drop-open");
+
+      if (isDesktop()) {
+        menu.style.removeProperty("display");
+      } else {
+        menu.style.setProperty("display", "none", "important");
+      }
+
+      gsap.set(menu, {
+        autoAlpha: 0,
+        pointerEvents: "none"
+      });
+
+      gsap.set(links, {
+        y: "0.75rem",
+        autoAlpha: 0,
+        filter: "blur(4px)"
+      });
+
+      gsap.set(dividers, {
+        scaleX: 0,
+        transformOrigin: "left center"
+      });
+    }
+
+    function prepareOpenState() {
+      dropdown.classList.add("is-drop-open");
+
+      if (isDesktop()) {
+        /* Le display Webflow est conservé sur desktop. */
+        menu.style.removeProperty("display");
+      } else {
+        menu.style.setProperty("display", "block", "important");
+      }
     }
 
     function closeOtherDropdowns() {
@@ -523,7 +520,7 @@ function initNavbarDropdowns(reduceMotion) {
 
       if (timeline) timeline.kill();
 
-      setOpenState();
+      prepareOpenState();
       updateAccessibility(true);
 
       if (reduceMotion) {
@@ -544,40 +541,40 @@ function initNavbarDropdowns(reduceMotion) {
         defaults: { overwrite: "auto" }
       });
 
-      timeline.to(
-        menu,
-        {
-          autoAlpha: 1,
-          pointerEvents: "auto",
-          duration: 0.4,
-          ease: "power2.out"
-        },
-        0
-      );
-
-      timeline.to(
-        links,
-        {
-          y: 0,
-          autoAlpha: 1,
-          filter: "blur(0px)",
-          duration: 0.55,
-          stagger: 0.06,
-          ease: "power4.out"
-        },
-        0.08
-      );
+      timeline
+        .to(
+          menu,
+          {
+            autoAlpha: 1,
+            pointerEvents: "auto",
+            duration: 0.35,
+            ease: "power2.out"
+          },
+          0
+        )
+        .to(
+          links,
+          {
+            y: 0,
+            autoAlpha: 1,
+            filter: "blur(0px)",
+            duration: 0.5,
+            stagger: 0.055,
+            ease: "power4.out"
+          },
+          0.06
+        );
 
       if (dividers.length) {
         timeline.to(
           dividers,
           {
             scaleX: 1,
-            duration: 0.5,
-            stagger: 0.06,
+            duration: 0.42,
+            stagger: 0.05,
             ease: "power3.out"
           },
-          0.12
+          0.1
         );
       }
     }
@@ -591,13 +588,7 @@ function initNavbarDropdowns(reduceMotion) {
       updateAccessibility(false);
 
       const finishClose = () => {
-        setClosedState();
-        gsap.set(links, {
-          y: "0.75rem",
-          autoAlpha: 0,
-          filter: "blur(4px)"
-        });
-        gsap.set(dividers, { scaleX: 0 });
+        prepareClosedState();
       };
 
       if (reduceMotion || immediate) {
@@ -610,47 +601,49 @@ function initNavbarDropdowns(reduceMotion) {
         onComplete: finishClose
       });
 
-      timeline.to(
-        [...links].reverse(),
-        {
-          y: "-0.4rem",
-          autoAlpha: 0,
-          filter: "blur(4px)",
-          duration: 0.22,
-          stagger: 0.025,
-          ease: "power2.in"
-        },
-        0
-      );
+      timeline
+        .to(
+          [...links].reverse(),
+          {
+            y: "-0.35rem",
+            autoAlpha: 0,
+            filter: "blur(4px)",
+            duration: 0.2,
+            stagger: 0.02,
+            ease: "power2.in"
+          },
+          0
+        )
+        .to(
+          menu,
+          {
+            autoAlpha: 0,
+            pointerEvents: "none",
+            duration: 0.25,
+            ease: "power2.in"
+          },
+          0.04
+        );
 
       if (dividers.length) {
         timeline.to(
           [...dividers].reverse(),
           {
             scaleX: 0,
-            duration: 0.22,
-            stagger: 0.02,
+            duration: 0.2,
+            stagger: 0.018,
             ease: "power2.in"
           },
           0
         );
       }
-
-      timeline.to(
-        menu,
-        {
-          autoAlpha: 0,
-          pointerEvents: "none",
-          duration: 0.3,
-          ease: "power2.in"
-        },
-        0.05
-      );
     }
 
     function delayedClose() {
       clearCloseTimeout();
-      closeTimeout = window.setTimeout(closeDropdown, 140);
+      closeTimeout = window.setTimeout(() => {
+        closeDropdown();
+      }, 220);
     }
 
     function toggleDropdown() {
@@ -658,9 +651,32 @@ function initNavbarDropdowns(reduceMotion) {
       else openDropdown();
     }
 
-    dropdown.addEventListener("mouseenter", () => {
+    /* Desktop : hover sur le bouton ET sur le dropdown. */
+    trigger.addEventListener("mouseenter", () => {
       if (!isDesktop()) return;
       openDropdown();
+    });
+
+    trigger.addEventListener("mouseleave", () => {
+      if (!isDesktop()) return;
+      delayedClose();
+    });
+
+    menu.addEventListener("mouseenter", () => {
+      if (!isDesktop()) return;
+      clearCloseTimeout();
+      openDropdown();
+    });
+
+    menu.addEventListener("mouseleave", () => {
+      if (!isDesktop()) return;
+      delayedClose();
+    });
+
+    /* Sécurité : le parent conserve aussi le hover. */
+    dropdown.addEventListener("mouseenter", () => {
+      if (!isDesktop()) return;
+      clearCloseTimeout();
     });
 
     dropdown.addEventListener("mouseleave", () => {
@@ -668,6 +684,7 @@ function initNavbarDropdowns(reduceMotion) {
       delayedClose();
     });
 
+    /* Mobile/tablette uniquement : clic pour ouvrir le sous-menu. */
     trigger.addEventListener("click", (event) => {
       if (isDesktop()) return;
       event.preventDefault();
@@ -713,17 +730,17 @@ function initNavbarDropdowns(reduceMotion) {
     });
 
     document.addEventListener("pointerdown", (event) => {
-      if (!isOpen) return;
+      if (!isOpen || isDesktop()) return;
       if (dropdown.contains(event.target)) return;
       closeDropdown();
     });
 
     desktopMedia.addEventListener("change", () => {
-      if (timeline) timeline.kill();
-      isOpen = false;
-      updateAccessibility(false);
-      setClosedState();
+      closeDropdown(true);
+      prepareClosedState();
     });
+
+    prepareClosedState();
   });
 }
 

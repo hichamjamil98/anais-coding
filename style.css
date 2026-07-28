@@ -128,6 +128,15 @@ html.is-gsap-ready [animation^="load"] {
   z-index: 30;
 }
 
+/* Maintient la zone interactive pendant le passage du bouton au dropdown. */
+@media (min-width: 992px) and (hover: hover) and (pointer: fine) {
+  .nav--menu > .inline-block.navbar--drop,
+  .nav--menu > .inline-block.navbar--drop > .btn,
+  .nav--menu > .inline-block.navbar--drop > .drop--menu.navbar--drop {
+    pointer-events: auto;
+  }
+}
+
 /* Neutralise uniquement le <defs> placé directement dans le wrapper. */
 .nav--menu > .inline-block.navbar--drop > defs,
 .nav--menu > .inline-block.navbar--drop > .defs {
