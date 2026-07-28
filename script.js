@@ -423,19 +423,6 @@ function initNavbarDropdowns(reduceMotion) {
     if (dropdown.dataset.dropdownReady === "true") return;
     dropdown.dataset.dropdownReady = "true";
 
-    /*
-      Les <defs> placés directement dans le wrapper n'ont aucun rôle visuel
-      et peuvent créer un espace dans le layout mobile.
-    */
-    dropdown
-      .querySelectorAll(":scope > defs, :scope > .defs")
-      .forEach((defs) => {
-        defs.style.display = "none";
-        defs.style.width = "0";
-        defs.style.height = "0";
-        defs.setAttribute("aria-hidden", "true");
-      });
-
     const trigger = dropdown.querySelector(":scope > .btn");
     const menu = dropdown.querySelector(
       ":scope > .drop--menu.navbar--drop"
@@ -455,69 +442,44 @@ function initNavbarDropdowns(reduceMotion) {
     trigger.setAttribute("aria-expanded", "false");
     menu.setAttribute("aria-hidden", "true");
 
-    function setClosedDisplay() {
-      if (desktopMedia.matches) {
-        /* Desktop : la géométrie reste entièrement celle de Webflow. */
-        gsap.set(menu, {
-          clearProps:
-            "display,width,height,minWidth,minHeight,maxWidth,maxHeight," +
-            "margin,padding,border,overflow,lineHeight"
-        });
-        return;
-      }
+    /* Neutralise seulement les <defs> directs du wrapper dropdown. */
+    dropdown
+      .querySelectorAll(":scope > defs, :scope > .defs")
+      .forEach((defs) => {
+        defs.style.display = "none";
+        defs.setAttribute("aria-hidden", "true");
+      });
 
-      /*
-        Mobile/tablette : on retire réellement le dropdown du flux.
-        Les propriétés directes sécurisent le résultat même si Webflow
-        ou une ancienne animation GSAP a laissé des styles inline.
-      */
-      menu.style.setProperty("display", "none", "important");
-      menu.style.setProperty("width", "0", "important");
-      menu.style.setProperty("height", "0", "important");
-      menu.style.setProperty("min-width", "0", "important");
-      menu.style.setProperty("min-height", "0", "important");
-      menu.style.setProperty("max-width", "0", "important");
-      menu.style.setProperty("max-height", "0", "important");
-      menu.style.setProperty("margin", "0", "important");
-      menu.style.setProperty("padding", "0", "important");
-      menu.style.setProperty("border", "0", "important");
-      menu.style.setProperty("overflow", "hidden", "important");
-      menu.style.setProperty("line-height", "0", "important");
+    function isDesktop() {
+      return desktopMedia.matches;
     }
 
-    function setOpenDisplay() {
-      if (desktopMedia.matches) {
-        gsap.set(menu, {
-          clearProps:
-            "display,width,height,minWidth,minHeight,maxWidth,maxHeight," +
-            "margin,padding,border,overflow,lineHeight"
-        });
-        return;
+    function setClosedState() {
+      dropdown.classList.remove("is-drop-open");
+
+      gsap.set(menu, {
+        autoAlpha: 0,
+        pointerEvents: "none"
+      });
+
+      /* Sur mobile uniquement, retire le dropdown du flux. */
+      if (!isDesktop()) {
+        menu.style.setProperty("display", "none", "important");
+      } else {
+        menu.style.removeProperty("display");
       }
-
-      [
-        "width",
-        "height",
-        "min-width",
-        "min-height",
-        "max-width",
-        "max-height",
-        "margin",
-        "padding",
-        "border",
-        "overflow",
-        "line-height"
-      ].forEach((property) => menu.style.removeProperty(property));
-
-      menu.style.setProperty("display", "block", "important");
     }
 
-    /* Aucun x, y ou transform n'est appliqué au menu. */
-    gsap.set(menu, {
-      autoAlpha: 0,
-      pointerEvents: "none"
-    });
-    setClosedDisplay();
+    function setOpenState() {
+      dropdown.classList.add("is-drop-open");
+
+      /* Ne modifie aucune position ni dimension Webflow. */
+      if (!isDesktop()) {
+        menu.style.setProperty("display", "block", "important");
+      } else {
+        menu.style.removeProperty("display");
+      }
+    }
 
     gsap.set(links, {
       y: "0.75rem",
@@ -529,6 +491,8 @@ function initNavbarDropdowns(reduceMotion) {
       scaleX: 0,
       transformOrigin: "left center"
     });
+
+    setClosedState();
 
     function updateAccessibility(open) {
       trigger.setAttribute("aria-expanded", String(open));
@@ -559,8 +523,7 @@ function initNavbarDropdowns(reduceMotion) {
 
       if (timeline) timeline.kill();
 
-      dropdown.classList.add("is-drop-open");
-      setOpenDisplay();
+      setOpenState();
       updateAccessibility(true);
 
       if (reduceMotion) {
@@ -581,9 +544,8 @@ function initNavbarDropdowns(reduceMotion) {
         defaults: { overwrite: "auto" }
       });
 
-      timeline.fromTo(
+      timeline.to(
         menu,
-        { autoAlpha: 0 },
         {
           autoAlpha: 1,
           pointerEvents: "auto",
@@ -593,13 +555,8 @@ function initNavbarDropdowns(reduceMotion) {
         0
       );
 
-      timeline.fromTo(
+      timeline.to(
         links,
-        {
-          y: "0.75rem",
-          autoAlpha: 0,
-          filter: "blur(4px)"
-        },
         {
           y: 0,
           autoAlpha: 1,
@@ -627,38 +584,30 @@ function initNavbarDropdowns(reduceMotion) {
 
     function closeDropdown(immediate = false) {
       clearCloseTimeout();
-      if (!isOpen) {
-        setClosedDisplay();
-        return;
-      }
+      if (!isOpen) return;
 
       isOpen = false;
       if (timeline) timeline.kill();
       updateAccessibility(false);
 
-      function finalizeClose() {
-        dropdown.classList.remove("is-drop-open");
-        gsap.set(menu, {
-          autoAlpha: 0,
-          pointerEvents: "none"
-        });
-        setClosedDisplay();
-      }
-
-      if (reduceMotion || immediate) {
-        finalizeClose();
+      const finishClose = () => {
+        setClosedState();
         gsap.set(links, {
           y: "0.75rem",
           autoAlpha: 0,
           filter: "blur(4px)"
         });
         gsap.set(dividers, { scaleX: 0 });
+      };
+
+      if (reduceMotion || immediate) {
+        finishClose();
         return;
       }
 
       timeline = gsap.timeline({
         defaults: { overwrite: "auto" },
-        onComplete: finalizeClose
+        onComplete: finishClose
       });
 
       timeline.to(
@@ -701,25 +650,26 @@ function initNavbarDropdowns(reduceMotion) {
 
     function delayedClose() {
       clearCloseTimeout();
-      closeTimeout = window.setTimeout(() => closeDropdown(), 140);
+      closeTimeout = window.setTimeout(closeDropdown, 140);
     }
 
     function toggleDropdown() {
-      isOpen ? closeDropdown() : openDropdown();
+      if (isOpen) closeDropdown();
+      else openDropdown();
     }
 
     dropdown.addEventListener("mouseenter", () => {
-      if (!desktopMedia.matches) return;
+      if (!isDesktop()) return;
       openDropdown();
     });
 
     dropdown.addEventListener("mouseleave", () => {
-      if (!desktopMedia.matches) return;
+      if (!isDesktop()) return;
       delayedClose();
     });
 
     trigger.addEventListener("click", (event) => {
-      if (desktopMedia.matches) return;
+      if (isDesktop()) return;
       event.preventDefault();
       event.stopPropagation();
       toggleDropdown();
@@ -732,10 +682,7 @@ function initNavbarDropdowns(reduceMotion) {
         links[0]?.focus();
       }
 
-      if (
-        !desktopMedia.matches &&
-        (event.key === "Enter" || event.key === " ")
-      ) {
+      if (!isDesktop() && (event.key === "Enter" || event.key === " ")) {
         event.preventDefault();
         toggleDropdown();
       }
@@ -747,12 +694,12 @@ function initNavbarDropdowns(reduceMotion) {
     });
 
     dropdown.addEventListener("focusin", () => {
-      if (!desktopMedia.matches) return;
+      if (!isDesktop()) return;
       openDropdown();
     });
 
     dropdown.addEventListener("focusout", (event) => {
-      if (!desktopMedia.matches) return;
+      if (!isDesktop()) return;
       if (dropdown.contains(event.relatedTarget)) return;
       delayedClose();
     });
@@ -762,7 +709,7 @@ function initNavbarDropdowns(reduceMotion) {
     });
 
     dropdown.addEventListener("navbar-dropdown-close", () => {
-      closeDropdown();
+      closeDropdown(true);
     });
 
     document.addEventListener("pointerdown", (event) => {
@@ -775,12 +722,7 @@ function initNavbarDropdowns(reduceMotion) {
       if (timeline) timeline.kill();
       isOpen = false;
       updateAccessibility(false);
-      dropdown.classList.remove("is-drop-open");
-      gsap.set(menu, {
-        autoAlpha: 0,
-        pointerEvents: "none"
-      });
-      setClosedDisplay();
+      setClosedState();
     });
   });
 }
