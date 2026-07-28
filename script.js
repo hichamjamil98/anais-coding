@@ -406,7 +406,8 @@ function initNavbar(reduceMotion) {
    Desktop : ouverture au hover et au focus.
    Tablette/mobile : ouverture au clic.
    La navbar principale n'est jamais modifiée.
-   La position du dropdown reste entièrement définie dans Webflow.
+   La position desktop du dropdown reste entièrement définie dans Webflow.
+   Le JS anime uniquement opacity, visibility et pointer-events du menu.
 ========================================================================== */
 
 function initNavbarDropdowns(reduceMotion) {

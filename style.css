@@ -117,7 +117,8 @@ html.is-gsap-ready [animation^="load"] {
 
 /* ========================================================================== 
    NAVBAR — DROPDOWN .drop--menu.navbar--drop
-   Gestion isolée : aucune règle ne modifie .nav--open ou la navbar principale
+   Gestion isolée : la position desktop reste 100 % définie dans Webflow.
+   Aucun position/top/right/bottom/left/transform n’est appliqué au dropdown.
 ========================================================================== */
 
 .nav--menu > .inline-block.navbar--drop {
