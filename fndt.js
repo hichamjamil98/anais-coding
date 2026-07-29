@@ -212,3 +212,63 @@ document.addEventListener("DOMContentLoaded", () => {
       link.addEventListener("focusout", close);
     });
   }
+
+  /* ==========================================================================
+     FONDEMENT TAB scroll
+  ========================================================================== */
+  
+  document.addEventListener("DOMContentLoaded", () => {
+    document.querySelectorAll(".w-tab-link").forEach((tab) => {
+      tab.addEventListener("click", () => {
+        setTimeout(() => {
+          const activePane = document.querySelector(
+            ".w-tab-pane.w--tab-active"
+          );
+  
+          if (!activePane) return;
+  
+          const remInPixels = parseFloat(
+            getComputedStyle(document.documentElement).fontSize
+          );
+  
+          const offset = 10 * remInPixels;
+  
+          const startPosition = window.scrollY;
+  
+          const targetPosition =
+            activePane.getBoundingClientRect().top +
+            window.scrollY -
+            offset;
+  
+          const distance = targetPosition - startPosition;
+          const duration = 1200;
+          let startTime = null;
+  
+          const easeInOutCubic = (progress) => {
+            return progress < 0.5
+              ? 4 * progress * progress * progress
+              : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+          };
+  
+          const animateScroll = (currentTime) => {
+            if (!startTime) startTime = currentTime;
+  
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const easing = easeInOutCubic(progress);
+  
+            window.scrollTo(
+              0,
+              startPosition + distance * easing
+            );
+  
+            if (progress < 1) {
+              requestAnimationFrame(animateScroll);
+            }
+          };
+  
+          requestAnimationFrame(animateScroll);
+        }, 100);
+      });
+    });
+  });
