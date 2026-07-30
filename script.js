@@ -438,6 +438,25 @@ function initNavbarDropdowns(reduceMotion) {
     const links = gsap.utils.toArray(menu.querySelectorAll(".drop--link"));
     const dividers = gsap.utils.toArray(menu.querySelectorAll(".divider"));
 
+    const isCurrentLink = (link) => {
+      if (link.matches(".w--current, [aria-current='page']")) return true;
+
+      const href = link.getAttribute("href");
+      if (!href || href.startsWith("#")) return false;
+
+      try {
+        const url = new URL(href, window.location.origin);
+        return url.pathname === window.location.pathname;
+      } catch {
+        return false;
+      }
+    };
+
+    const hasCurrentLink =
+      isCurrentLink(trigger) || links.some(isCurrentLink);
+
+    dropdown.classList.toggle("is-current", hasCurrentLink);
+
     let isOpen = false;
     let timeline = null;
     let closeTimeout = null;
@@ -479,12 +498,13 @@ function initNavbarDropdowns(reduceMotion) {
       }
 
       gsap.set(menu, {
+        x: "-1.25rem",
         autoAlpha: 0,
         pointerEvents: "none"
       });
 
       gsap.set(links, {
-        y: "0.75rem",
+        x: "-0.5rem",
         autoAlpha: 0,
         filter: "blur(4px)"
       });
@@ -529,11 +549,12 @@ function initNavbarDropdowns(reduceMotion) {
 
       if (reduceMotion) {
         gsap.set(menu, {
+          x: 0,
           autoAlpha: 1,
           pointerEvents: "auto"
         });
         gsap.set(links, {
-          y: 0,
+          x: 0,
           autoAlpha: 1,
           filter: "blur(0px)"
         });
@@ -549,17 +570,18 @@ function initNavbarDropdowns(reduceMotion) {
         .to(
           menu,
           {
+            x: 0,
             autoAlpha: 1,
             pointerEvents: "auto",
-            duration: 0.35,
-            ease: "power2.out"
+            duration: 0.45,
+            ease: "power3.out"
           },
           0
         )
         .to(
           links,
           {
-            y: 0,
+            x: 0,
             autoAlpha: 1,
             filter: "blur(0px)",
             duration: 0.5,
@@ -609,7 +631,7 @@ function initNavbarDropdowns(reduceMotion) {
         .to(
           [...links].reverse(),
           {
-            y: "-0.35rem",
+            x: "-0.35rem",
             autoAlpha: 0,
             filter: "blur(4px)",
             duration: 0.2,
@@ -621,9 +643,10 @@ function initNavbarDropdowns(reduceMotion) {
         .to(
           menu,
           {
+            x: "-0.75rem",
             autoAlpha: 0,
             pointerEvents: "none",
-            duration: 0.25,
+            duration: 0.28,
             ease: "power2.in"
           },
           0.04
@@ -762,6 +785,7 @@ function initButtons(reduceMotion) {
   if (!canHover) return;
 
   gsap.utils.toArray(".btn").forEach((button) => {
+    if (button.closest(".inline-block.navbar--drop")) return;
     if (button.dataset.hoverReady === "true") return;
     button.dataset.hoverReady = "true";
 

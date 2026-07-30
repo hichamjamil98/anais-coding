@@ -154,7 +154,7 @@ html.is-gsap-ready [animation^="load"] {
   visibility: hidden;
   opacity: 0;
   pointer-events: none;
-  will-change: opacity, visibility;
+  will-change: transform, opacity, visibility;
 }
 
 .nav--menu
@@ -190,6 +190,41 @@ html.is-gsap-ready [animation^="load"] {
 
 .drop--menu.navbar--drop .drop--link {
   display: block;
+}
+
+/* Boutons parents des dropdowns : aucune rotation verticale du texte. */
+.nav--menu
+  > .inline-block.navbar--drop
+  > .btn
+  .btn-animate-chars__text {
+  transform: none !important;
+  transition: color 0.3s ease;
+}
+
+.nav--menu
+  > .inline-block.navbar--drop
+  > .btn:hover
+  .btn-animate-chars__text,
+.nav--menu
+  > .inline-block.navbar--drop
+  > .btn:focus-visible
+  .btn-animate-chars__text,
+.nav--menu
+  > .inline-block.navbar--drop.is-drop-open
+  > .btn
+  .btn-animate-chars__text,
+.nav--menu
+  > .inline-block.navbar--drop.is-current
+  > .btn
+  .btn-animate-chars__text {
+  color: #8c7a57;
+}
+
+/* Le dropdown qui contient le lien courant reste doré. */
+.nav--menu
+  > .inline-block.navbar--drop.is-current
+  > .btn {
+  color: #8c7a57;
 }
 
 .nav--menu > .inline-block.navbar--drop > .btn:focus-visible {
